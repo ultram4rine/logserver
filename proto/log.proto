@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package log;
+
+service Log {
+    rpc GetDHCPLog(DHCPLogEntry) returns (DHCPLog) {}
+    rpc GetSwitchLog(SwitchLogEntry) returns (SwitchLog) {}
+}
+
+message DHCPLogEntry {
+    string MAC = 1;
+    string from = 2;
+    string to = 3;
+}
+
+message SwitchLogEntry {
+    string name = 1;
+    string from = 2;
+    string to = 3;
+}
+
+message DHCPLog {
+    string ip = 1;
+    string timestamp = 2;
+    string message = 3;
+}
+
+message SwitchLog {
+    string ip = 1;
+    string name = 2;
+    string ts = 3;
+    string message = 4;
+}
