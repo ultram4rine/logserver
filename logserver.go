@@ -37,7 +37,7 @@ func main() {
 		log.Fatalf("Error decoding config file from %s", *confpath)
 	}
 
-	conn, err := sqlx.Open("clickhouse", fmt.Sprintf("%s?username=%s&password=%s&database=%s", config.DB.Host, config.DB.User, config.DB.Pass, config.DB.Name))
+	conn, err := sqlx.Connect("clickhouse", fmt.Sprintf("%s?username=%s&password=%s&database=%s", config.DB.Host, config.DB.User, config.DB.Pass, config.DB.Name))
 	if err != nil {
 		log.Fatalf("Error connecting to database: %s", err)
 	}
