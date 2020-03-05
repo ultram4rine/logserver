@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	pb "github.com/ultram4rine/logserver/proto"
 
 	"github.com/BurntSushi/toml"
@@ -37,11 +38,11 @@ func main() {
 		log.Fatalf("Error decoding config file from %s", *confpath)
 	}
 
-	conn, err := sqlx.Connect("clickhouse", fmt.Sprintf("%s?username=%s&password=%s&database=%s", config.DB.Host, config.DB.User, config.DB.Pass, config.DB.Name))
+	db, err := sqlx.Connect("clickhouse", fmt.Sprintf("%s?username=%s&password=%s&database=%s", config.DB.Host, config.DB.User, config.DB.Pass, config.DB.Name))
 	if err != nil {
 		log.Fatalf("Error connecting to database: %s", err)
 	}
-	defer conn.Close()
+	defer db.Close()
 
 	listener, err := net.Listen("tcp", ":"+config.Port)
 	if err != nil {
@@ -51,20 +52,40 @@ func main() {
 	opts := []grpc.ServerOption{}
 	grpcServer := grpc.NewServer(opts...)
 
-	pb.RegisterLogServer(grpcServer, &server{})
+	pb.RegisterLogServer(grpcServer, &server{DB: db})
 	grpcServer.Serve(listener)
 }
 
-type server struct{}
+type server struct {
+	DB *sqlx.DB
+}
 
-func (s *server) GetAvailableSwitches(c context.Context, request *pb.SwName) (response *pb.Switch, err error) {
+func (s *server) GetAvailableSwitches(c context.Context, request *empty.Empty) (response *pb.Switches, err error) {
+	rows, err := s.DB.QueryxContext(c, "SELECT DISTINCT sw_name, sw_ip FROM switchlogs")
+	if err != nil {
+		return nil, err
+	}
+
+	var switches *pb.Switches
+	for rows.Next() {
+		var s *pb.Switch
+		if err = rows.Scan(&s.Name, &s.IP); err != nil {
+			return nil, err
+		}
+
+		switches.Switch = append(switches.Switch, s)
+	}
+	if rows.Err() != nil {
+		return nil, err
+	}
+
+	return switches, nil
+}
+
+func (s *server) GetDHCPLog(c context.Context, request *pb.DHCPLogEntry) (response *pb.DHCPLogs, err error) {
 	return nil, nil
 }
 
-func (s *server) GetDHCPLog(c context.Context, request *pb.DHCPLogEntry) (response *pb.DHCPLog, err error) {
-	return nil, nil
-}
-
-func (s *server) GetSwitchLog(c context.Context, request *pb.SwitchLogEntry) (response *pb.SwitchLog, err error) {
+func (s *server) GetSwitchLog(c context.Context, request *pb.SwitchLogEntry) (response *pb.SwitchLogs, err error) {
 	return nil, nil
 }
