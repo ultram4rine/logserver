@@ -1,20 +1,22 @@
 syntax = "proto3";
 
+import "google/protobuf/empty.proto";
+
 package log;
 
 service Log {
-    rpc GetDHCPLog(DHCPLogEntry) returns (DHCPLog) {}
-    rpc GetAvailableSwitches(SwName) returns (Switch) {}
-    rpc GetSwitchLog(SwitchLogEntry) returns (SwitchLog) {}
-}
-
-message SwName {
-    string name = 1;
+    rpc GetDHCPLog(DHCPLogEntry) returns (DHCPLogs) {}
+    rpc GetAvailableSwitches(google.protobuf.Empty) returns (Switches) {}
+    rpc GetSwitchLog(SwitchLogEntry) returns (SwitchLogs) {}
 }
 
 message Switch {
     string name = 1;
     string IP = 2;
+}
+
+message Switches {
+    repeated Switch switch = 1;
 }
 
 message DHCPLogEntry {
@@ -35,9 +37,17 @@ message DHCPLog {
     string message = 3;
 }
 
+message DHCPLogs {
+    repeated DHCPLog log = 1;
+}
+
 message SwitchLog {
     string ip = 1;
     string name = 2;
     string ts = 3;
     string message = 4;
+}
+
+message SwitchLogs {
+    repeated SwitchLog log = 1;
 }
