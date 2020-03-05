@@ -57,6 +57,10 @@ func main() {
 
 type server struct{}
 
+func (s *server) GetAvailableSwitches(c context.Context, request *pb.SwName) (response *pb.Switch, err error) {
+	return nil, nil
+}
+
 func (s *server) GetDHCPLog(c context.Context, request *pb.DHCPLogEntry) (response *pb.DHCPLog, err error) {
 	return nil, nil
 }

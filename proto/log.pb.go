@@ -24,6 +24,92 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
+type SwName struct {
+	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *SwName) Reset()         { *m = SwName{} }
+func (m *SwName) String() string { return proto.CompactTextString(m) }
+func (*SwName) ProtoMessage()    {}
+func (*SwName) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a153da538f858886, []int{0}
+}
+
+func (m *SwName) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SwName.Unmarshal(m, b)
+}
+func (m *SwName) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SwName.Marshal(b, m, deterministic)
+}
+func (m *SwName) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SwName.Merge(m, src)
+}
+func (m *SwName) XXX_Size() int {
+	return xxx_messageInfo_SwName.Size(m)
+}
+func (m *SwName) XXX_DiscardUnknown() {
+	xxx_messageInfo_SwName.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SwName proto.InternalMessageInfo
+
+func (m *SwName) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+type Switch struct {
+	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	IP                   string   `protobuf:"bytes,2,opt,name=IP,proto3" json:"IP,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *Switch) Reset()         { *m = Switch{} }
+func (m *Switch) String() string { return proto.CompactTextString(m) }
+func (*Switch) ProtoMessage()    {}
+func (*Switch) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a153da538f858886, []int{1}
+}
+
+func (m *Switch) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Switch.Unmarshal(m, b)
+}
+func (m *Switch) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Switch.Marshal(b, m, deterministic)
+}
+func (m *Switch) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Switch.Merge(m, src)
+}
+func (m *Switch) XXX_Size() int {
+	return xxx_messageInfo_Switch.Size(m)
+}
+func (m *Switch) XXX_DiscardUnknown() {
+	xxx_messageInfo_Switch.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Switch proto.InternalMessageInfo
+
+func (m *Switch) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *Switch) GetIP() string {
+	if m != nil {
+		return m.IP
+	}
+	return ""
+}
+
 type DHCPLogEntry struct {
 	MAC                  string   `protobuf:"bytes,1,opt,name=MAC,proto3" json:"MAC,omitempty"`
 	From                 string   `protobuf:"bytes,2,opt,name=from,proto3" json:"from,omitempty"`
@@ -37,7 +123,7 @@ func (m *DHCPLogEntry) Reset()         { *m = DHCPLogEntry{} }
 func (m *DHCPLogEntry) String() string { return proto.CompactTextString(m) }
 func (*DHCPLogEntry) ProtoMessage()    {}
 func (*DHCPLogEntry) Descriptor() ([]byte, []int) {
-	return fileDescriptor_a153da538f858886, []int{0}
+	return fileDescriptor_a153da538f858886, []int{2}
 }
 
 func (m *DHCPLogEntry) XXX_Unmarshal(b []byte) error {
@@ -92,7 +178,7 @@ func (m *SwitchLogEntry) Reset()         { *m = SwitchLogEntry{} }
 func (m *SwitchLogEntry) String() string { return proto.CompactTextString(m) }
 func (*SwitchLogEntry) ProtoMessage()    {}
 func (*SwitchLogEntry) Descriptor() ([]byte, []int) {
-	return fileDescriptor_a153da538f858886, []int{1}
+	return fileDescriptor_a153da538f858886, []int{3}
 }
 
 func (m *SwitchLogEntry) XXX_Unmarshal(b []byte) error {
@@ -147,7 +233,7 @@ func (m *DHCPLog) Reset()         { *m = DHCPLog{} }
 func (m *DHCPLog) String() string { return proto.CompactTextString(m) }
 func (*DHCPLog) ProtoMessage()    {}
 func (*DHCPLog) Descriptor() ([]byte, []int) {
-	return fileDescriptor_a153da538f858886, []int{2}
+	return fileDescriptor_a153da538f858886, []int{4}
 }
 
 func (m *DHCPLog) XXX_Unmarshal(b []byte) error {
@@ -203,7 +289,7 @@ func (m *SwitchLog) Reset()         { *m = SwitchLog{} }
 func (m *SwitchLog) String() string { return proto.CompactTextString(m) }
 func (*SwitchLog) ProtoMessage()    {}
 func (*SwitchLog) Descriptor() ([]byte, []int) {
-	return fileDescriptor_a153da538f858886, []int{3}
+	return fileDescriptor_a153da538f858886, []int{5}
 }
 
 func (m *SwitchLog) XXX_Unmarshal(b []byte) error {
@@ -253,6 +339,8 @@ func (m *SwitchLog) GetMessage() string {
 }
 
 func init() {
+	proto.RegisterType((*SwName)(nil), "log.SwName")
+	proto.RegisterType((*Switch)(nil), "log.Switch")
 	proto.RegisterType((*DHCPLogEntry)(nil), "log.DHCPLogEntry")
 	proto.RegisterType((*SwitchLogEntry)(nil), "log.SwitchLogEntry")
 	proto.RegisterType((*DHCPLog)(nil), "log.DHCPLog")
@@ -264,23 +352,26 @@ func init() {
 }
 
 var fileDescriptor_a153da538f858886 = []byte{
-	// 245 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x91, 0x4f, 0x4b, 0xc4, 0x30,
-	0x10, 0xc5, 0x77, 0xd3, 0xe2, 0xd2, 0xa1, 0x14, 0x1d, 0x2f, 0x65, 0xf1, 0x20, 0x39, 0x79, 0x5a,
-	0x41, 0xf1, 0x03, 0xc8, 0xae, 0xec, 0x1e, 0x14, 0xfc, 0x73, 0xf2, 0x58, 0x25, 0xd6, 0xc0, 0x66,
-	0x27, 0x34, 0x03, 0xe2, 0xb7, 0x97, 0x84, 0xb4, 0x4d, 0xf1, 0xb2, 0xb7, 0x97, 0x37, 0xf0, 0xe3,
-	0xc7, 0x0b, 0x14, 0x7b, 0x6a, 0x57, 0xb6, 0x23, 0x26, 0xcc, 0xf6, 0xd4, 0xca, 0x0d, 0x94, 0x9b,
-	0xdd, 0xfa, 0xf9, 0x91, 0xda, 0x87, 0x03, 0x77, 0xbf, 0x78, 0x0a, 0xd9, 0xd3, 0xfd, 0xba, 0x9e,
-	0x5f, 0xce, 0xaf, 0x8a, 0x57, 0x1f, 0x11, 0x21, 0xff, 0xea, 0xc8, 0xd4, 0x22, 0x54, 0x21, 0x63,
-	0x05, 0x82, 0xa9, 0xce, 0x42, 0x23, 0x98, 0xe4, 0x0e, 0xaa, 0xb7, 0x1f, 0xcd, 0x9f, 0xdf, 0x03,
-	0x07, 0x21, 0x3f, 0x34, 0x46, 0x45, 0x50, 0xc8, 0x47, 0x91, 0x5e, 0x60, 0x11, 0x7d, 0xfc, 0x49,
-	0xdb, 0x08, 0x10, 0xda, 0xe2, 0x05, 0x14, 0xac, 0x8d, 0x72, 0xdc, 0x18, 0x1b, 0x19, 0x63, 0x81,
-	0x35, 0x2c, 0x8c, 0x72, 0xae, 0x69, 0x55, 0xa4, 0xf5, 0x4f, 0xf9, 0x0e, 0xc5, 0x20, 0xf7, 0x0f,
-	0xda, 0x7b, 0x8a, 0xc4, 0xd3, 0x3b, 0xb9, 0xc1, 0xc9, 0xa5, 0xe8, 0x7c, 0x82, 0xbe, 0x31, 0x90,
-	0x79, 0xe8, 0x35, 0xc0, 0x56, 0x71, 0xef, 0x7d, 0xb6, 0xf2, 0x1b, 0xa7, 0xab, 0x2e, 0xcb, 0xb4,
-	0x92, 0x33, 0xbc, 0x83, 0x72, 0xab, 0x78, 0xb4, 0x3a, 0x0f, 0xf7, 0xe9, 0x84, 0xcb, 0x6a, 0x5a,
-	0xca, 0xd9, 0xc7, 0x49, 0xf8, 0xb8, 0xdb, 0xbf, 0x00, 0x00, 0x00, 0xff, 0xff, 0x0e, 0x85, 0xbf,
-	0xbb, 0xc5, 0x01, 0x00, 0x00,
+	// 300 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x92, 0x4f, 0x4b, 0xf3, 0x40,
+	0x10, 0xc6, 0xf3, 0xa7, 0xb4, 0x64, 0xde, 0x10, 0x5e, 0x57, 0x0f, 0xa1, 0xf4, 0x20, 0x7b, 0xf2,
+	0x20, 0x15, 0x2a, 0x7e, 0x80, 0xd2, 0x4a, 0x5a, 0x50, 0x89, 0x7a, 0xf2, 0xb8, 0x95, 0x31, 0x06,
+	0xb2, 0xdd, 0x90, 0x1d, 0x14, 0x3f, 0x8e, 0xdf, 0x54, 0x36, 0xd9, 0xa4, 0x09, 0xf6, 0xe0, 0x6d,
+	0xf6, 0x79, 0xb2, 0xbf, 0x79, 0x32, 0xb3, 0x10, 0x14, 0x2a, 0x9b, 0x97, 0x95, 0x22, 0xc5, 0xfc,
+	0x42, 0x65, 0x7c, 0x06, 0xe3, 0xe7, 0xcf, 0x07, 0x21, 0x91, 0x31, 0x18, 0xed, 0x85, 0xc4, 0xd8,
+	0x3d, 0x77, 0x2f, 0x82, 0xa7, 0xba, 0xe6, 0x97, 0xc6, 0xcd, 0xe9, 0xf5, 0xfd, 0x98, 0xcb, 0x22,
+	0xf0, 0xb6, 0x69, 0xec, 0xd5, 0x8a, 0xb7, 0x4d, 0xf9, 0x1a, 0xc2, 0xf5, 0x66, 0x95, 0xde, 0xa9,
+	0xec, 0x76, 0x4f, 0xd5, 0x17, 0xfb, 0x0f, 0xfe, 0xfd, 0x72, 0x65, 0xaf, 0x98, 0xd2, 0x50, 0xde,
+	0x2a, 0x25, 0xed, 0x9d, 0xba, 0x36, 0x14, 0x52, 0xb1, 0xdf, 0x50, 0x48, 0xf1, 0x0d, 0x44, 0x4d,
+	0xcf, 0x8e, 0x73, 0xac, 0xf7, 0x5f, 0x48, 0x8f, 0x30, 0xb1, 0x79, 0x8c, 0x95, 0x97, 0x16, 0xe0,
+	0xe5, 0x25, 0x9b, 0x41, 0x40, 0xb9, 0x44, 0x4d, 0x42, 0x96, 0x96, 0x71, 0x10, 0x58, 0x0c, 0x13,
+	0x89, 0x5a, 0x8b, 0x0c, 0x2d, 0xad, 0x3d, 0xf2, 0x17, 0x08, 0xba, 0x70, 0xbf, 0xa0, 0x6d, 0x4e,
+	0x6f, 0x38, 0x23, 0xd2, 0x5d, 0x26, 0xdd, 0x47, 0x8f, 0x06, 0xe8, 0xc5, 0xb7, 0x0b, 0xbe, 0xa1,
+	0x5e, 0x01, 0x24, 0x48, 0x6d, 0xf0, 0x93, 0xb9, 0x59, 0x58, 0x7f, 0xac, 0xd3, 0xb0, 0x2f, 0x71,
+	0x87, 0x2d, 0xe0, 0x2c, 0x41, 0x5a, 0x7e, 0x88, 0xbc, 0x10, 0xbb, 0x02, 0x9b, 0x7c, 0xa8, 0xd9,
+	0xbf, 0xfa, 0xbb, 0x66, 0xbb, 0xd3, 0xf6, 0x60, 0x3c, 0xee, 0xb0, 0x1b, 0x08, 0x13, 0xa4, 0xc3,
+	0xaf, 0x9c, 0xf6, 0xec, 0xae, 0x51, 0x34, 0x14, 0xb9, 0xb3, 0x1b, 0xd7, 0x2f, 0xe7, 0xfa, 0x27,
+	0x00, 0x00, 0xff, 0xff, 0x54, 0x75, 0xde, 0x3e, 0x46, 0x02, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -296,6 +387,7 @@ const _ = grpc.SupportPackageIsVersion6
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type LogClient interface {
 	GetDHCPLog(ctx context.Context, in *DHCPLogEntry, opts ...grpc.CallOption) (*DHCPLog, error)
+	GetAvailableSwitches(ctx context.Context, in *SwName, opts ...grpc.CallOption) (*Switch, error)
 	GetSwitchLog(ctx context.Context, in *SwitchLogEntry, opts ...grpc.CallOption) (*SwitchLog, error)
 }
 
@@ -316,6 +408,15 @@ func (c *logClient) GetDHCPLog(ctx context.Context, in *DHCPLogEntry, opts ...gr
 	return out, nil
 }
 
+func (c *logClient) GetAvailableSwitches(ctx context.Context, in *SwName, opts ...grpc.CallOption) (*Switch, error) {
+	out := new(Switch)
+	err := c.cc.Invoke(ctx, "/log.Log/GetAvailableSwitches", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *logClient) GetSwitchLog(ctx context.Context, in *SwitchLogEntry, opts ...grpc.CallOption) (*SwitchLog, error) {
 	out := new(SwitchLog)
 	err := c.cc.Invoke(ctx, "/log.Log/GetSwitchLog", in, out, opts...)
@@ -328,6 +429,7 @@ func (c *logClient) GetSwitchLog(ctx context.Context, in *SwitchLogEntry, opts .
 // LogServer is the server API for Log service.
 type LogServer interface {
 	GetDHCPLog(context.Context, *DHCPLogEntry) (*DHCPLog, error)
+	GetAvailableSwitches(context.Context, *SwName) (*Switch, error)
 	GetSwitchLog(context.Context, *SwitchLogEntry) (*SwitchLog, error)
 }
 
@@ -337,6 +439,9 @@ type UnimplementedLogServer struct {
 
 func (*UnimplementedLogServer) GetDHCPLog(ctx context.Context, req *DHCPLogEntry) (*DHCPLog, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDHCPLog not implemented")
+}
+func (*UnimplementedLogServer) GetAvailableSwitches(ctx context.Context, req *SwName) (*Switch, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAvailableSwitches not implemented")
 }
 func (*UnimplementedLogServer) GetSwitchLog(ctx context.Context, req *SwitchLogEntry) (*SwitchLog, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSwitchLog not implemented")
@@ -360,6 +465,24 @@ func _Log_GetDHCPLog_Handler(srv interface{}, ctx context.Context, dec func(inte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(LogServer).GetDHCPLog(ctx, req.(*DHCPLogEntry))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Log_GetAvailableSwitches_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SwName)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LogServer).GetAvailableSwitches(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/log.Log/GetAvailableSwitches",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LogServer).GetAvailableSwitches(ctx, req.(*SwName))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -389,6 +512,10 @@ var _Log_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetDHCPLog",
 			Handler:    _Log_GetDHCPLog_Handler,
+		},
+		{
+			MethodName: "GetAvailableSwitches",
+			Handler:    _Log_GetAvailableSwitches_Handler,
 		},
 		{
 			MethodName: "GetSwitchLog",

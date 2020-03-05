@@ -4,7 +4,17 @@ package log;
 
 service Log {
     rpc GetDHCPLog(DHCPLogEntry) returns (DHCPLog) {}
+    rpc GetAvailableSwitches(SwName) returns (Switch) {}
     rpc GetSwitchLog(SwitchLogEntry) returns (SwitchLog) {}
+}
+
+message SwName {
+    string name = 1;
+}
+
+message Switch {
+    string name = 1;
+    string IP = 2;
 }
 
 message DHCPLogEntry {
