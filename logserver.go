@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/binary"
 	"fmt"
 	"log"
 	"net"
@@ -84,24 +85,41 @@ func (s *server) GetSimilarSwitches(c context.Context, request *pb.SwName) (resp
 }
 
 func (s *server) GetDHCPLog(c context.Context, request *pb.DHCPLogEntry) (response *pb.DHCPLogs, err error) {
-	return nil, nil
+	timeFrom, timeTo, err := parseTime(request.GetFrom(), request.GetTo())
+	if err != nil {
+		return nil, err
+	}
+
+	var mhex []byte
+	binary.BigEndian.PutUint64(mhex, request.GetMAC())
+	mcvt := net.HardwareAddr(mhex).String()
+
+	rows, err := s.DB.QueryxContext(c, "SELECT ts, message, ip FROM dhcp.events WHERE mac = MACStringToNum(?) AND ts > ? AND ts < ? ORDER BY ts DESC", mcvt, timeFrom, timeTo)
+	if err != nil {
+		return nil, err
+	}
+
+	var logs *pb.DHCPLogs
+	for rows.Next() {
+		var l *pb.DHCPLog
+		if err = rows.Scan(&l.Timestamp, &l.Message, &l.Ip); err != nil {
+			return nil, err
+		}
+
+		logs.Log = append(logs.Log, l)
+	}
+	if rows.Err() != nil {
+		return nil, err
+	}
+
+	return logs, nil
 }
 
 func (s *server) GetSwitchLog(c context.Context, request *pb.SwitchLogEntry) (response *pb.SwitchLogs, err error) {
-	from, err := strconv.Atoi(request.GetFrom())
+	timeFrom, timeTo, err := parseTime(request.GetFrom(), request.GetTo())
 	if err != nil {
 		return nil, err
 	}
-	to, err := strconv.Atoi(request.GetTo())
-	if err != nil {
-		return nil, err
-	}
-
-	fromDuration := time.Minute * -time.Duration(from)
-	toDuration := time.Minute * -time.Duration(to)
-
-	timeFrom := time.Now().Add(fromDuration)
-	timeTo := time.Now().Add(toDuration)
 
 	rows, err := s.DB.QueryxContext(c, "SELECT ts_remote, log_msg FROM switchlogs WHERE sw_name = ? AND ts_local > ? AND ts_local < ? ORDER BY ts_local DESC", request.GetName(), timeFrom, timeTo)
 	if err != nil {
@@ -122,4 +140,23 @@ func (s *server) GetSwitchLog(c context.Context, request *pb.SwitchLogEntry) (re
 	}
 
 	return logs, nil
+}
+
+func parseTime(fromStr, toStr string) (time.Time, time.Time, error) {
+	from, err := strconv.Atoi(fromStr)
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+	to, err := strconv.Atoi(toStr)
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+
+	fromDuration := time.Minute * -time.Duration(from)
+	toDuration := time.Minute * -time.Duration(to)
+
+	timeFrom := time.Now().Add(fromDuration)
+	timeTo := time.Now().Add(toDuration)
+
+	return timeFrom, timeTo, nil
 }
