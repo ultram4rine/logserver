@@ -22,7 +22,7 @@ message Switches {
 }
 
 message DHCPLogEntry {
-    string MAC = 1;
+    uint64 MAC = 1;
     string from = 2;
     string to = 3;
 }
