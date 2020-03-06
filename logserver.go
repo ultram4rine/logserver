@@ -5,14 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"strconv"
-	"time"
 
 	pb "github.com/ultram4rine/logserver/proto"
 
 	"github.com/BurntSushi/toml"
 	_ "github.com/ClickHouse/clickhouse-go"
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/jmoiron/sqlx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
@@ -62,8 +59,8 @@ type server struct {
 	DB *sqlx.DB
 }
 
-func (s *server) GetAvailableSwitches(c context.Context, request *empty.Empty) (response *pb.Switches, err error) {
-	rows, err := s.DB.QueryxContext(c, "SELECT DISTINCT sw_name, sw_ip FROM switchlogs")
+func (s *server) GetSimilarSwitches(c context.Context, request *pb.SwName) (response *pb.Switches, err error) {
+	rows, err := s.DB.QueryxContext(c, "SELECT DISTINCT sw_name, sw_ip FROM switchlogs WHERE sw_name LIKE ?", request.GetName()+"%")
 	if err != nil {
 		return nil, err
 	}
@@ -89,38 +86,5 @@ func (s *server) GetDHCPLog(c context.Context, request *pb.DHCPLogEntry) (respon
 }
 
 func (s *server) GetSwitchLog(c context.Context, request *pb.SwitchLogEntry) (response *pb.SwitchLogs, err error) {
-	from, err := strconv.Atoi(request.GetFrom())
-	if err != nil {
-		return nil, err
-	}
-	to, err := strconv.Atoi(request.GetTo())
-	if err != nil {
-		return nil, err
-	}
-
-	fromDuration := time.Minute * -time.Duration(from)
-	toDuration := time.Minute * -time.Duration(to)
-
-	timeFrom := time.Now().Add(fromDuration)
-	timeTo := time.Now().Add(toDuration)
-
-	rows, err := s.DB.QueryxContext(c, "SELECT ts_remote, log_msg FROM switchlogs WHERE sw_name = ? AND ts_local > ? AND ts_local < ? ORDER BY ts_local DESC", request.GetName(), timeFrom, timeTo)
-	if err != nil {
-		return nil, err
-	}
-
-	var logs *pb.SwitchLogs
-	for rows.Next() {
-		var l *pb.SwitchLog
-		if err = rows.Scan(&l.Ts, &l.Message); err != nil {
-			return nil, err
-		}
-
-		logs.Log = append(logs.Log, l)
-	}
-	if rows.Err() != nil {
-		return nil, err
-	}
-
-	return logs, nil
+	return nil, nil
 }

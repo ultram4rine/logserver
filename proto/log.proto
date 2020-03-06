@@ -1,13 +1,15 @@
 syntax = "proto3";
 
-import "google/protobuf/empty.proto";
-
 package log;
 
 service Log {
     rpc GetDHCPLog(DHCPLogEntry) returns (DHCPLogs) {}
-    rpc GetAvailableSwitches(google.protobuf.Empty) returns (Switches) {}
+    rpc GetSimilarSwitches(SwName) returns (Switches) {}
     rpc GetSwitchLog(SwitchLogEntry) returns (SwitchLogs) {}
+}
+
+message SwName {
+    string name = 1;
 }
 
 message Switch {
