@@ -1,4 +1,4 @@
-module github.com/ultram4rine/logserver
+module git.sgu.ru/ultramarine/logserver
 
 go 1.14
 
@@ -12,7 +12,7 @@ require (
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a // indirect
 	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527 // indirect
 	golang.org/x/text v0.3.2 // indirect
-	google.golang.org/genproto v0.0.0-20200305110556-506484158171 // indirect
-	google.golang.org/grpc v1.27.1
+	google.golang.org/genproto v0.0.0-20200310143817-43be25429f5a // indirect
+	google.golang.org/grpc v1.28.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
