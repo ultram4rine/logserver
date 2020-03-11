@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	pb "github.com/ultram4rine/logserver/proto"
+	pb "git.sgu.ru/ultramarine/logserver/proto"
 
 	"github.com/BurntSushi/toml"
 	_ "github.com/ClickHouse/clickhouse-go"
