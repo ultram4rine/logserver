@@ -3,31 +3,18 @@ syntax = "proto3";
 package log;
 
 service Log {
-    rpc GetDHCPLog(DHCPLogEntry) returns (DHCPLogs) {}
+    rpc GetDHCPLog(DHCPLogsRequest) returns (DHCPLogs) {}
+    rpc GetSwitchLog(SwitchLogsRequest) returns (SwitchLogs) {}
     rpc GetSimilarSwitches(SwName) returns (Switches) {}
-    rpc GetSwitchLog(SwitchLogEntry) returns (SwitchLogs) {}
 }
 
-message SwName {
-    string name = 1;
-}
-
-message Switch {
-    string name = 1;
-    string IP = 2;
-}
-
-message Switches {
-    repeated Switch switch = 1;
-}
-
-message DHCPLogEntry {
+message DHCPLogsRequest {
     uint64 MAC = 1;
     string from = 2;
     string to = 3;
 }
 
-message SwitchLogEntry {
+message SwitchLogsRequest {
     string name = 1;
     string from = 2;
     string to = 3;
@@ -52,4 +39,17 @@ message SwitchLog {
 
 message SwitchLogs {
     repeated SwitchLog log = 1;
+}
+
+message SwName {
+    string name = 1;
+}
+
+message Switch {
+    string name = 1;
+    string IP = 2;
+}
+
+message Switches {
+    repeated Switch switch = 1;
 }
