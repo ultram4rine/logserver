@@ -89,10 +89,16 @@ func (s LogService) GetSimilarSwitches(ctx context.Context, name string) (Simila
 
 	var switches SimilarSwitchesResponse
 	for rows.Next() {
-		var s similarSwitch
-		if err = rows.Scan(&s.Name, &s.IP); err != nil {
+		var (
+			s  similarSwitch
+			IP net.IP
+		)
+
+		if err = rows.Scan(&s.Name, &IP); err != nil {
 			return SimilarSwitchesResponse{}, err
 		}
+
+		s.IP = IP.String()
 
 		switches.Sws = append(switches.Sws, s)
 	}
