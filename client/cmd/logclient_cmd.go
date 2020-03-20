@@ -4,45 +4,42 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"log"
 	"net"
 	"strconv"
 	"time"
 
 	"git.sgu.ru/ultramarine/logserver"
 	"git.sgu.ru/ultramarine/logserver/client"
+
+	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-var addr = kingpin.Flag("logserver", "Address of logserver.").Short('s').Default("localhost:8181").String()
+var server = flag.String("logserver", "localhost:8908", "")
 
 func main() {
-	kingpin.Parse()
+	flag.Parse()
 
 	ctx := context.Background()
 
-	conn, err := grpc.Dial(*addr, grpc.WithInsecure(), grpc.WithTimeout(1*time.Second))
+	conn, err := grpc.Dial(*server, grpc.WithInsecure(), grpc.WithTimeout(1*time.Second))
 	if err != nil {
-		log.Fatalf("cannot connect to %s: %s", *addr, err)
+		log.Fatalf("cannot connect to %s: %s", *server, err)
 	}
 	defer conn.Close()
 
 	svc := client.New(conn)
 
-	args := flag.Args()
-	var cmd string
-
-	cmd, args = parse(args)
+	var cmd = flag.Arg(0)
 
 	switch cmd {
 	case "dhcp":
 		{
-			var mac, from, to string
-
-			mac, args = parse(args)
-			from, args = parse(args)
-			to, args = parse(args)
+			var (
+				mac  = flag.Arg(1)
+				from = flag.Arg(2)
+				to   = flag.Arg(3)
+			)
 
 			macAddr, err := net.ParseMAC(mac)
 			if err != nil {
@@ -73,11 +70,4 @@ func dhcp(ctx context.Context, svc logserver.Service, mac uint64, from, to strin
 		log.Fatalf("error getting DHCP logs of %d: %s", mac, err)
 	}
 	fmt.Println(logs)
-}
-
-func parse(args []string) (string, []string) {
-	if len(args) == 0 {
-		return "", args
-	}
-	return args[0], args[1:]
 }
