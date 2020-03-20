@@ -2,20 +2,20 @@ package main
 
 import (
 	"context"
-	"encoding/binary"
 	"fmt"
 	"log"
 	"net"
-	"strconv"
-	"time"
+	"os"
+	"os/signal"
+	"syscall"
 
-	pb "git.sgu.ru/ultramarine/logserver/proto"
+	"git.sgu.ru/ultramarine/logserver"
+	pb "git.sgu.ru/ultramarine/logserver/logpb"
 
 	"github.com/BurntSushi/toml"
 	_ "github.com/ClickHouse/clickhouse-go"
 	"github.com/jmoiron/sqlx"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/grpclog"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -40,123 +40,47 @@ func main() {
 		log.Fatalf("Error decoding config file from %s", *confpath)
 	}
 
-	db, err := sqlx.Connect("clickhouse", fmt.Sprintf("%s?username=%s&password=%s&database=%s", config.DB.Host, config.DB.User, config.DB.Pass, config.DB.Name))
+	ctx := context.Background()
+
+	db, err := sqlx.ConnectContext(ctx, "clickhouse", fmt.Sprintf("%s?username=%s&password=%s&database=%s", config.DB.Host, config.DB.User, config.DB.Pass, config.DB.Name))
 	if err != nil {
 		log.Fatalf("Error connecting to database: %s", err)
 	}
 	defer db.Close()
 
-	listener, err := net.Listen("tcp", ":"+config.Port)
-	if err != nil {
-		grpclog.Fatalf("failed to listen: %v", err)
+	var svc logserver.Service
+	svc = logserver.LogService{DB: db}
+	errChan := make(chan error)
+
+	endpoints := logserver.Endpoints{
+		DHCPEndpoint:    logserver.MakeDHCPEndpoint(svc),
+		SwitchEndpoint:  logserver.MakeSwitchEndpoint(svc),
+		SimilarEndpoint: logserver.MakeSimilarEndpoint(svc),
 	}
 
-	opts := []grpc.ServerOption{}
-	grpcServer := grpc.NewServer(opts...)
-
-	pb.RegisterLogServer(grpcServer, &server{DB: db})
-	grpcServer.Serve(listener)
-}
-
-type server struct {
-	DB *sqlx.DB
-}
-
-func (s *server) GetSimilarSwitches(c context.Context, request *pb.SwName) (response *pb.Switches, err error) {
-	rows, err := s.DB.QueryxContext(c, "SELECT DISTINCT sw_name, sw_ip FROM switchlogs WHERE sw_name LIKE ?", request.GetName()+"%")
-	if err != nil {
-		return nil, err
-	}
-
-	var switches *pb.Switches
-	for rows.Next() {
-		var s *pb.Switch
-		if err = rows.Scan(&s.Name, &s.IP); err != nil {
-			return nil, err
+	go func() {
+		listener, err := net.Listen("tcp", config.Port)
+		if err != nil {
+			errChan <- err
+			return
 		}
+		handler := logserver.NewGRPCServer(ctx, endpoints)
+		gRPCServer := grpc.NewServer()
+		pb.RegisterLogServer(gRPCServer, handler)
+		errChan <- gRPCServer.Serve(listener)
+	}()
 
-		switches.Switch = append(switches.Switch, s)
-	}
-	if rows.Err() != nil {
-		return nil, err
-	}
+	go func() {
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+		errChan <- fmt.Errorf("%s", <-c)
+	}()
 
-	return switches, nil
-}
+	go func() {
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+		errChan <- fmt.Errorf("%s", <-c)
+	}()
 
-func (s *server) GetDHCPLog(c context.Context, request *pb.DHCPLogEntry) (response *pb.DHCPLogs, err error) {
-	timeFrom, timeTo, err := parseTime(request.GetFrom(), request.GetTo())
-	if err != nil {
-		return nil, err
-	}
-
-	var mhex []byte
-	binary.BigEndian.PutUint64(mhex, request.GetMAC())
-	mcvt := net.HardwareAddr(mhex).String()
-
-	rows, err := s.DB.QueryxContext(c, "SELECT ts, message, ip FROM dhcp.events WHERE mac = MACStringToNum(?) AND ts > ? AND ts < ? ORDER BY ts DESC", mcvt, timeFrom, timeTo)
-	if err != nil {
-		return nil, err
-	}
-
-	var logs *pb.DHCPLogs
-	for rows.Next() {
-		var l *pb.DHCPLog
-		if err = rows.Scan(&l.Timestamp, &l.Message, &l.Ip); err != nil {
-			return nil, err
-		}
-
-		logs.Log = append(logs.Log, l)
-	}
-	if rows.Err() != nil {
-		return nil, err
-	}
-
-	return logs, nil
-}
-
-func (s *server) GetSwitchLog(c context.Context, request *pb.SwitchLogEntry) (response *pb.SwitchLogs, err error) {
-	timeFrom, timeTo, err := parseTime(request.GetFrom(), request.GetTo())
-	if err != nil {
-		return nil, err
-	}
-
-	rows, err := s.DB.QueryxContext(c, "SELECT ts_remote, log_msg FROM switchlogs WHERE sw_name = ? AND ts_local > ? AND ts_local < ? ORDER BY ts_local DESC", request.GetName(), timeFrom, timeTo)
-	if err != nil {
-		return nil, err
-	}
-
-	var logs *pb.SwitchLogs
-	for rows.Next() {
-		var l *pb.SwitchLog
-		if err = rows.Scan(&l.Ts, &l.Message); err != nil {
-			return nil, err
-		}
-
-		logs.Log = append(logs.Log, l)
-	}
-	if rows.Err() != nil {
-		return nil, err
-	}
-
-	return logs, nil
-}
-
-func parseTime(fromStr, toStr string) (time.Time, time.Time, error) {
-	from, err := strconv.Atoi(fromStr)
-	if err != nil {
-		return time.Time{}, time.Time{}, err
-	}
-	to, err := strconv.Atoi(toStr)
-	if err != nil {
-		return time.Time{}, time.Time{}, err
-	}
-
-	fromDuration := time.Minute * -time.Duration(from)
-	toDuration := time.Minute * -time.Duration(to)
-
-	timeFrom := time.Now().Add(fromDuration)
-	timeTo := time.Now().Add(toDuration)
-
-	return timeFrom, timeTo, nil
+	log.Println(<-errChan)
 }
