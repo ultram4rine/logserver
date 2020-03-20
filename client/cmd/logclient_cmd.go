@@ -78,7 +78,7 @@ func dhcp(ctx context.Context, svc logserver.Service, mac uint64, from, to strin
 	}
 }
 
-func similar(ctx context.Context, svc logserver.LogService, name string) {
+func similar(ctx context.Context, svc logserver.Service, name string) {
 	names, err := svc.GetSimilarSwitches(ctx, name)
 	if err != nil {
 		log.Fatalf("error getting similar to %s switches: %s", name, err)
