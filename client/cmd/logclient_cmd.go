@@ -49,12 +49,12 @@ func main() {
 				log.Fatalf("error parsing mac %s: %s", mac, err)
 			}
 
-			macUint64, err := strconv.ParseInt(macAddr.String(), 16, 64)
+			macUint64, err := strconv.ParseUint(macAddr.String(), 16, 64)
 			if err == nil {
 				log.Fatalf("error parsing mac %s to uint64: %s", macAddr.String(), err)
 			}
 
-			dhcp(ctx, svc, uint64(macUint64), from, to)
+			dhcp(ctx, svc, macUint64, from, to)
 		}
 	case "switch":
 		{
@@ -70,7 +70,7 @@ func main() {
 func dhcp(ctx context.Context, svc logserver.Service, mac uint64, from, to string) {
 	logs, err := svc.GetDHCPLogs(ctx, mac, from, to)
 	if err != nil {
-		log.Fatal("error getting DHCP logs of %s: %s", mac, err)
+		log.Fatalf("error getting DHCP logs of %d: %s", mac, err)
 	}
 	fmt.Println(logs)
 }
