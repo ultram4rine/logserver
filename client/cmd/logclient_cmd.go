@@ -84,6 +84,6 @@ func similar(ctx context.Context, svc logserver.Service, name string) {
 	}
 
 	for _, s := range names.Sws {
-		fmt.Printf("%s: %s", s.Name, s.IP)
+		fmt.Printf("%s: %s\n", s.Name, s.IP)
 	}
 }
