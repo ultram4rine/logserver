@@ -58,6 +58,9 @@ func main() {
 		}
 	case "similar":
 		{
+			var name = flag.Arg(0)
+
+			similar(ctx, svc, name)
 		}
 	default:
 		log.Fatal("unknown command")
@@ -69,5 +72,19 @@ func dhcp(ctx context.Context, svc logserver.Service, mac uint64, from, to strin
 	if err != nil {
 		log.Fatalf("error getting DHCP logs of %d: %s", mac, err)
 	}
-	fmt.Println(logs)
+
+	for _, l := range logs.Logs {
+		fmt.Printf("DHCP logs for %d:\nIP:%s, Time: %s\nMessage: %s", mac, l.IP, l.TimeStamp, l.Message)
+	}
+}
+
+func similar(ctx context.Context, svc logserver.LogService, name string) {
+	names, err := svc.GetSimilarSwitches(ctx, name)
+	if err != nil {
+		log.Fatalf("error getting similar to %s switches: %s", name, err)
+	}
+
+	for _, s := range names.Sws {
+		fmt.Printf("%s: %s", s.Name, s.IP)
+	}
 }
