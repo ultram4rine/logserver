@@ -58,8 +58,7 @@ func main() {
 		}
 	case "similar":
 		{
-			var name = flag.Arg(0)
-
+			var name = flag.Arg(1)
 			similar(ctx, svc, name)
 		}
 	default:
