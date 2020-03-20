@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net"
 	"os"
 	"os/signal"
@@ -15,6 +14,7 @@ import (
 	"github.com/BurntSushi/toml"
 	_ "github.com/ClickHouse/clickhouse-go"
 	"github.com/jmoiron/sqlx"
+	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -59,7 +59,7 @@ func main() {
 	}
 
 	go func() {
-		listener, err := net.Listen("tcp", config.Port)
+		listener, err := net.Listen("tcp", ":"+config.Port)
 		if err != nil {
 			errChan <- err
 			return
