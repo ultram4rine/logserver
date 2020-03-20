@@ -7,25 +7,24 @@ import (
 	"strconv"
 	"time"
 
-	pb "git.sgu.ru/ultramarine/logserver/proto"
 	"github.com/jmoiron/sqlx"
 )
 
 // Service interface.
 type Service interface {
-	GetDHCPLogs(ctx context.Context, mac uint64, from, to string) (pb.DHCPLogs, error)
-	GetSwitchLogs(ctx context.Context, name, from, to string) (pb.SwitchLogs, error)
-	GetSimilarSwitches(ctx context.Context, name string) (pb.Switches, error)
+	GetDHCPLogs(ctx context.Context, mac uint64, from, to string) (DHCPLogsResponse, error)
+	GetSwitchLogs(ctx context.Context, name, from, to string) (SwitchLogsResponse, error)
+	GetSimilarSwitches(ctx context.Context, name string) (SimilarSwitchesResponse, error)
 }
 
 // LogService is a Service interface implementation.
 type LogService struct{ DB *sqlx.DB }
 
 // GetDHCPLogs returns DHCP logs from given MAC address and time interval.
-func (s LogService) GetDHCPLogs(ctx context.Context, mac uint64, from, to string) (pb.DHCPLogs, error) {
+func (s LogService) GetDHCPLogs(ctx context.Context, mac uint64, from, to string) (DHCPLogsResponse, error) {
 	timeFrom, timeTo, err := parseTime(from, to)
 	if err != nil {
-		return nil, err
+		return DHCPLogsResponse{}, err
 	}
 
 	var mhex []byte
@@ -34,71 +33,71 @@ func (s LogService) GetDHCPLogs(ctx context.Context, mac uint64, from, to string
 
 	rows, err := s.DB.QueryxContext(ctx, "SELECT ts, message, ip FROM dhcp.events WHERE mac = MACStringToNum(?) AND ts > ? AND ts < ? ORDER BY ts DESC", mcvt, timeFrom, timeTo)
 	if err != nil {
-		return nil, err
+		return DHCPLogsResponse{}, err
 	}
 
-	var logs *pb.DHCPLogs
+	var logs DHCPLogsResponse
 	for rows.Next() {
-		var l *pb.DHCPLog
-		if err = rows.Scan(&l.Timestamp, &l.Message, &l.Ip); err != nil {
-			return nil, err
+		var l dhcpLog
+		if err = rows.Scan(&l.TimeStamp, &l.Message, &l.IP); err != nil {
+			return DHCPLogsResponse{}, err
 		}
 
-		logs.Log = append(logs.Log, l)
+		logs.Logs = append(logs.Logs, l)
 	}
 	if rows.Err() != nil {
-		return nil, err
+		return DHCPLogsResponse{}, err
 	}
 
 	return logs, nil
 }
 
 // GetSwitchLogs returns logs from given switch and time interval.
-func (s LogService) GetSwitchLogs(ctx context.Context, name, from, to string) (pb.SwitchLogs, error) {
+func (s LogService) GetSwitchLogs(ctx context.Context, name, from, to string) (SwitchLogsResponse, error) {
 	timeFrom, timeTo, err := parseTime(from, to)
 	if err != nil {
-		return nil, err
+		return SwitchLogsResponse{}, err
 	}
 
 	rows, err := s.DB.QueryxContext(ctx, "SELECT ts_remote, log_msg FROM switchlogs WHERE sw_name = ? AND ts_local > ? AND ts_local < ? ORDER BY ts_local DESC", name, timeFrom, timeTo)
 	if err != nil {
-		return nil, err
+		return SwitchLogsResponse{}, err
 	}
 
-	var logs *pb.SwitchLogs
+	var logs SwitchLogsResponse
 	for rows.Next() {
-		var l *pb.SwitchLog
-		if err = rows.Scan(&l.Ts, &l.Message); err != nil {
-			return nil, err
+		var l switchLog
+		if err = rows.Scan(&l.TimeStamp, &l.Message); err != nil {
+			return SwitchLogsResponse{}, err
 		}
 
-		logs.Log = append(logs.Log, l)
+		logs.Logs = append(logs.Logs, l)
 	}
 	if rows.Err() != nil {
-		return nil, err
+		return SwitchLogsResponse{}, err
 	}
 
 	return logs, nil
 }
 
 // GetSimilarSwitches returns available for view logs switches, which names are similar to given.
-func (s LogService) GetSimilarSwitches(ctx context.Context, name string) (pb.Switches, error) {
+func (s LogService) GetSimilarSwitches(ctx context.Context, name string) (SimilarSwitchesResponse, error) {
 	rows, err := s.DB.QueryxContext(ctx, "SELECT DISTINCT sw_name, sw_ip FROM switchlogs WHERE sw_name LIKE ?", name+"%")
 	if err != nil {
-		return nil, err
+		return SimilarSwitchesResponse{}, err
 	}
 
-	var switches *pb.Switches
+	var switches SimilarSwitchesResponse
 	for rows.Next() {
-		var s *pb.Switch
+		var s similarSwitch
 		if err = rows.Scan(&s.Name, &s.IP); err != nil {
-			return nil, err
+			return SimilarSwitchesResponse{}, err
 		}
 
-		switches.Switch = append(switches.Switch, s)
+		switches.Sws = append(switches.Sws, s)
 	}
 	if rows.Err() != nil {
-		return nil, err
+		return SimilarSwitchesResponse{}, err
 	}
 
 	return switches, nil

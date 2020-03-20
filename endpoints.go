@@ -2,13 +2,65 @@ package logserver
 
 import (
 	"context"
+	"errors"
 
 	"github.com/go-kit/kit/endpoint"
 )
 
 // Endpoints is a endpoints wrapper.
 type Endpoints struct {
-	LogEndpoint endpoint.Endpoint
+	DHCPEndpoint    endpoint.Endpoint
+	SwitchEndpoint  endpoint.Endpoint
+	SimilarEndpoint endpoint.Endpoint
+}
+
+func (e Endpoints) GetDHCPLogs(ctx context.Context, mac uint64, from, to string) (DHCPLogsResponse, error) {
+	req := DHCPLogsRequest{
+		MAC:  mac,
+		From: from,
+		To:   to,
+	}
+	resp, err := e.DHCPEndpoint(ctx, req)
+	if err != nil {
+		return DHCPLogsResponse{}, err
+	}
+	dhcpResp := resp.(DHCPLogsResponse)
+	if dhcpResp.Err != "" {
+		return DHCPLogsResponse{}, errors.New(dhcpResp.Err)
+	}
+	return dhcpResp, nil
+}
+
+func (e Endpoints) GetSwitchLogs(ctx context.Context, name, from, to string) (SwitchLogsResponse, error) {
+	req := SwitchLogsRequest{
+		Name: name,
+		From: from,
+		To:   to,
+	}
+	resp, err := e.SwitchEndpoint(ctx, req)
+	if err != nil {
+		return SwitchLogsResponse{}, err
+	}
+	switchResp := resp.(SwitchLogsResponse)
+	if switchResp.Err != "" {
+		return SwitchLogsResponse{}, errors.New(switchResp.Err)
+	}
+	return switchResp, nil
+}
+
+func (e Endpoints) GetSimilarSwitches(ctx context.Context, name string) (SimilarSwitchesResponse, error) {
+	req := SimilarSwitchesRequest{
+		Name: name,
+	}
+	resp, err := e.SimilarEndpoint(ctx, req)
+	if err != nil {
+		return SimilarSwitchesResponse{}, err
+	}
+	similarResp := resp.(SimilarSwitchesResponse)
+	if similarResp.Err != "" {
+		return SimilarSwitchesResponse{}, errors.New(similarResp.Err)
+	}
+	return similarResp, nil
 }
 
 // MakeDHCPEndpoint creates endpoint for DHCP logs.
@@ -42,7 +94,7 @@ func MakeSwitchEndpoint(svc Service) endpoint.Endpoint {
 // MakeSimilarEndpoint creates endpoint for similar available switches.
 func MakeSimilarEndpoint(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(SwName)
+		req := request.(SimilarSwitchesRequest)
 
 		switches, err := svc.GetSimilarSwitches(ctx, req.Name)
 		if err != nil {
@@ -66,8 +118,8 @@ type dhcpLog struct {
 	Message   string `json:"message"`
 }
 
-// DHCPLogs is a response with DHCP logs.
-type DHCPLogs struct {
+// DHCPLogsResponse is a response with DHCP logs.
+type DHCPLogsResponse struct {
 	Logs []dhcpLog `json:"logs"`
 	Err  string    `json:"err,omitempty"`
 }
@@ -86,24 +138,24 @@ type switchLog struct {
 	Message   string `json:"message"`
 }
 
-// SwitchLogs is a response with logs from switch.
-type SwitchLogs struct {
-	Logs []SwitchLogs `json:"logs"`
-	Err  string       `json:"err,omitempty"`
+// SwitchLogsResponse is a response with logs from switch.
+type SwitchLogsResponse struct {
+	Logs []switchLog `json:"logs"`
+	Err  string      `json:"err,omitempty"`
 }
 
-// SwName is a request for similar available switches.
-type SwName struct {
+// SimilarSwitchRequest is a request for similar available switches.
+type SimilarSwitchesRequest struct {
 	Name string `json:"name"`
 }
 
-type sw struct {
+type similarSwitch struct {
 	Name string `json:"name"`
 	IP   string `json:"ip"`
 }
 
-// Switches is a response with array of similar available switches.
-type Switches struct {
-	Sws []sw   `json:"switches"`
-	Err string `json:"err,omitempty"`
+// SimilarSwitchResponse is a response with array of similar available switches.
+type SimilarSwitchesResponse struct {
+	Sws []similarSwitch `json:"switches"`
+	Err string          `json:"err,omitempty"`
 }
