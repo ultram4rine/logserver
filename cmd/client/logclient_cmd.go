@@ -9,22 +9,38 @@ import (
 	"time"
 
 	"git.sgu.ru/ultramarine/logserver"
-	"git.sgu.ru/ultramarine/logserver/client"
+	"git.sgu.ru/ultramarine/logserver/cmd/client"
 
+	"github.com/BurntSushi/toml"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
-var server = flag.String("logserver", "localhost:8908", "")
+var conf struct {
+	Cert   string `toml:"cert"`
+	Server string `toml:"server"`
+}
+
+var confpath = flag.String("conf", "logclient.conf.toml", "")
 
 func main() {
 	flag.Parse()
 
+	if _, err := toml.DecodeFile(*confpath, &conf); err != nil {
+		log.Fatalf("error decoding config file from %s", *confpath)
+	}
+
 	ctx := context.Background()
 
-	conn, err := grpc.Dial(*server, grpc.WithInsecure(), grpc.WithTimeout(1*time.Second))
+	creds, err := credentials.NewClientTLSFromFile(conf.Cert, "")
 	if err != nil {
-		log.Fatalf("cannot connect to %s: %s", *server, err)
+		log.Fatalf("error creating TLS client using %s: %s", conf.Cert, err)
+	}
+
+	conn, err := grpc.Dial(conf.Server, grpc.WithTransportCredentials(creds), grpc.WithTimeout(1*time.Second))
+	if err != nil {
+		log.Fatalf("cannot connect to %s: %s", conf.Server, err)
 	}
 	defer conn.Close()
 
