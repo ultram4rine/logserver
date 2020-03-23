@@ -55,9 +55,12 @@ func main() {
 	}
 	defer db.Close()
 
-	var svc logserver.Service
+	var (
+		svc     logserver.Service
+		errChan = make(chan error, 1000)
+	)
+
 	svc = logserver.LogService{DB: db}
-	errChan := make(chan error, 1000)
 
 	endpoints := logserver.Endpoints{
 		DHCPEndpoint:    logserver.MakeDHCPEndpoint(svc),
@@ -81,6 +84,8 @@ func main() {
 		handler := logserver.NewGRPCServer(ctx, endpoints)
 		gRPCServer := grpc.NewServer(grpc.Creds(creds))
 		pb.RegisterLogServer(gRPCServer, handler)
+
+		log.Printf("Started LogServer on %s port", conf.App.Port)
 
 		errChan <- gRPCServer.Serve(listener)
 	}()
