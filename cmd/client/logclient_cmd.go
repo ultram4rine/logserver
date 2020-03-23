@@ -2,8 +2,11 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"strconv"
 	"time"
@@ -33,12 +36,22 @@ func main() {
 
 	ctx := context.Background()
 
-	creds, err := credentials.NewClientTLSFromFile(conf.Cert, "")
+	b, err := ioutil.ReadFile(conf.Cert)
 	if err != nil {
-		log.Fatalf("error creating TLS client using %s: %s", conf.Cert, err)
+		log.Fatalf("error reading certificate authority from %s: %s", conf.Cert, err)
 	}
 
-	conn, err := grpc.Dial(conf.Server, grpc.WithTransportCredentials(creds), grpc.WithTimeout(1*time.Second))
+	cp := x509.NewCertPool()
+	if !cp.AppendCertsFromPEM(b) {
+		log.Fatal("failed to append certificates")
+	}
+
+	tlsConfig := &tls.Config{
+		InsecureSkipVerify: false,
+		RootCAs:            cp,
+	}
+
+	conn, err := grpc.Dial(conf.Server, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)), grpc.WithTimeout(1*time.Second))
 	if err != nil {
 		log.Fatalf("cannot connect to %s: %s", conf.Server, err)
 	}
