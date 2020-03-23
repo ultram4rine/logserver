@@ -16,12 +16,15 @@ import (
 	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-var config struct {
-	Port string `toml:"listen_port"`
-	DB   db     `toml:"db"`
+var conf struct {
+	CertPath string `toml:"cert_path"`
+	KeyPath  string `toml:"key_path"`
+	Port     string `toml:"listen_port"`
+	DB       db     `toml:"db"`
 }
 
 type db struct {
@@ -36,13 +39,13 @@ var confpath = kingpin.Flag("conf", "Path to config file.").Short('c').Default("
 func main() {
 	kingpin.Parse()
 
-	if _, err := toml.DecodeFile(*confpath, &config); err != nil {
+	if _, err := toml.DecodeFile(*confpath, &conf); err != nil {
 		log.Fatalf("Error decoding config file from %s", *confpath)
 	}
 
 	ctx := context.Background()
 
-	db, err := sqlx.ConnectContext(ctx, "clickhouse", fmt.Sprintf("%s?username=%s&password=%s&database=%s", config.DB.Host, config.DB.User, config.DB.Pass, config.DB.Name))
+	db, err := sqlx.ConnectContext(ctx, "clickhouse", fmt.Sprintf("%s?username=%s&password=%s&database=%s", conf.DB.Host, conf.DB.User, conf.DB.Pass, conf.DB.Name))
 	if err != nil {
 		log.Fatalf("Error connecting to database: %s", err)
 	}
@@ -59,14 +62,22 @@ func main() {
 	}
 
 	go func() {
-		listener, err := net.Listen("tcp", ":"+config.Port)
+		listener, err := net.Listen("tcp", ":"+conf.Port)
 		if err != nil {
 			errChan <- err
 			return
 		}
+
+		creds, err := credentials.NewServerTLSFromFile(conf.CertPath, conf.KeyPath)
+		if err != nil {
+			errChan <- err
+			return
+		}
+
 		handler := logserver.NewGRPCServer(ctx, endpoints)
-		gRPCServer := grpc.NewServer()
+		gRPCServer := grpc.NewServer(grpc.Creds(creds))
 		pb.RegisterLogServer(gRPCServer, handler)
+
 		errChan <- gRPCServer.Serve(listener)
 	}()
 
