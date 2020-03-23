@@ -55,6 +55,12 @@ func main() {
 		}
 	case "switch":
 		{
+			var (
+				name = flag.Arg(1)
+				from = flag.Arg(2)
+				to   = flag.Arg(3)
+			)
+			switches(ctx, svc, name, from, to)
 		}
 	case "similar":
 		{
@@ -74,6 +80,17 @@ func dhcp(ctx context.Context, svc logserver.Service, mac uint64, from, to strin
 
 	for _, l := range logs.Logs {
 		fmt.Printf("DHCP logs for %d:\nIP:%s, Time: %s\nMessage: %s", mac, l.IP, l.TimeStamp, l.Message)
+	}
+}
+
+func switches(ctx context.Context, svc logserver.Service, name, from, to string) {
+	logs, err := svc.GetSwitchLogs(ctx, name, from, to)
+	if err != nil {
+		log.Fatalf("error getting switch logs of %s: %s", name, err)
+	}
+
+	for _, l := range logs.Logs {
+		fmt.Printf("Logs from %s switch:\nIP:%s, Time: %s\nMessage: %s", name, l.IP, l.TimeStamp, l.Message)
 	}
 }
 
