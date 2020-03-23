@@ -50,7 +50,7 @@ func main() {
 
 	var svc logserver.Service
 	svc = logserver.LogService{DB: db}
-	errChan := make(chan error)
+	errChan := make(chan error, 1000)
 
 	endpoints := logserver.Endpoints{
 		DHCPEndpoint:    logserver.MakeDHCPEndpoint(svc),
