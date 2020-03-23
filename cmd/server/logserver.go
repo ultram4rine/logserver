@@ -21,10 +21,14 @@ import (
 )
 
 var conf struct {
+	App app `toml:"app"`
+	DB  db  `toml:"db"`
+}
+
+type app struct {
 	CertPath string `toml:"cert_path"`
 	KeyPath  string `toml:"key_path"`
 	Port     string `toml:"listen_port"`
-	DB       db     `toml:"db"`
 }
 
 type db struct {
@@ -62,13 +66,13 @@ func main() {
 	}
 
 	go func() {
-		listener, err := net.Listen("tcp", ":"+conf.Port)
+		listener, err := net.Listen("tcp", ":"+conf.App.Port)
 		if err != nil {
 			errChan <- err
 			return
 		}
 
-		creds, err := credentials.NewServerTLSFromFile(conf.CertPath, conf.KeyPath)
+		creds, err := credentials.NewServerTLSFromFile(conf.App.CertPath, conf.App.KeyPath)
 		if err != nil {
 			errChan <- err
 			return
