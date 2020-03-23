@@ -76,11 +76,5 @@ func main() {
 		errChan <- fmt.Errorf("%s", <-c)
 	}()
 
-	go func() {
-		c := make(chan os.Signal, 1)
-		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
-		errChan <- fmt.Errorf("%s", <-c)
-	}()
-
 	log.Println(<-errChan)
 }
