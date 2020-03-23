@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"git.sgu.ru/ultramarine/logserver"
-	"git.sgu.ru/ultramarine/logserver/cmd/client"
+	"git.sgu.ru/ultramarine/logserver/client"
 
 	"github.com/BurntSushi/toml"
 	log "github.com/sirupsen/logrus"
