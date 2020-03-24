@@ -7,8 +7,6 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"net"
-	"strconv"
 	"time"
 
 	"git.sgu.ru/ultramarine/logserver"
@@ -70,17 +68,11 @@ func main() {
 				to   = flag.Arg(3)
 			)
 
-			macAddr, err := net.ParseMAC(mac)
-			if err != nil {
-				log.Fatalf("error parsing mac %s: %s", mac, err)
+			if mac == "" {
+				log.Fatal("please provide a MAC address which logs you want to see")
 			}
 
-			macUint64, err := strconv.ParseUint(macAddr.String(), 16, 64)
-			if err == nil {
-				log.Fatalf("error parsing mac %s to uint64: %s", macAddr.String(), err)
-			}
-
-			dhcp(ctx, svc, macUint64, from, to)
+			dhcp(ctx, svc, mac, from, to)
 		}
 	case "switch":
 		{
@@ -89,11 +81,21 @@ func main() {
 				from = flag.Arg(2)
 				to   = flag.Arg(3)
 			)
+
+			if name == "" {
+				log.Fatal("please provide switch name which logs you want to see")
+			}
+
 			switches(ctx, svc, name, from, to)
 		}
 	case "similar":
 		{
 			var name = flag.Arg(1)
+
+			if name == "" {
+				log.Fatal("please provide similar name")
+			}
+
 			similar(ctx, svc, name)
 		}
 	default:
@@ -101,14 +103,14 @@ func main() {
 	}
 }
 
-func dhcp(ctx context.Context, svc logserver.Service, mac uint64, from, to string) {
+func dhcp(ctx context.Context, svc logserver.Service, mac, from, to string) {
 	logs, err := svc.GetDHCPLogs(ctx, mac, from, to)
 	if err != nil {
 		log.Fatalf("error getting DHCP logs of %d: %s", mac, err)
 	}
 
 	for _, l := range logs.Logs {
-		fmt.Printf("DHCP logs for %d:\nIP:%s, Time: %s\nMessage: %s", mac, l.IP, l.TimeStamp, l.Message)
+		fmt.Printf("DHCP logs for %s:\nIP:%s, Time: %s\nMessage: %s", mac, l.IP, l.TimeStamp, l.Message)
 	}
 }
 
