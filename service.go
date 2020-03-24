@@ -33,10 +33,15 @@ func (s LogService) GetDHCPLogs(ctx context.Context, mac, from, to string) (DHCP
 
 	var logs DHCPLogsResponse
 	for rows.Next() {
-		var l dhcpLog
-		if err = rows.Scan(&l.TimeStamp, &l.Message, &l.IP); err != nil {
+		var (
+			l  dhcpLog
+			ip net.IP
+		)
+		if err = rows.Scan(&l.TimeStamp, &l.Message, &ip); err != nil {
 			return DHCPLogsResponse{}, err
 		}
+
+		l.IP = ip.String()
 
 		logs.Logs = append(logs.Logs, l)
 	}
