@@ -14,6 +14,7 @@ type Endpoints struct {
 	SimilarEndpoint endpoint.Endpoint
 }
 
+// GetDHCPLogs is a endpoint for DHCP logs.
 func (e Endpoints) GetDHCPLogs(ctx context.Context, mac, from, to string) (DHCPLogsResponse, error) {
 	req := DHCPLogsRequest{
 		MAC:  mac,
@@ -31,6 +32,7 @@ func (e Endpoints) GetDHCPLogs(ctx context.Context, mac, from, to string) (DHCPL
 	return dhcpResp, nil
 }
 
+// GetSwitchLogs is a endpoint for logs from switch.
 func (e Endpoints) GetSwitchLogs(ctx context.Context, name, from, to string) (SwitchLogsResponse, error) {
 	req := SwitchLogsRequest{
 		Name: name,
@@ -48,6 +50,7 @@ func (e Endpoints) GetSwitchLogs(ctx context.Context, name, from, to string) (Sw
 	return switchResp, nil
 }
 
+// GetSimilarSwitches is a endpoint for similar switches.
 func (e Endpoints) GetSimilarSwitches(ctx context.Context, name string) (SimilarSwitchesResponse, error) {
 	req := SimilarSwitchesRequest{
 		Name: name,
@@ -144,7 +147,7 @@ type SwitchLogsResponse struct {
 	Err  string      `json:"err,omitempty"`
 }
 
-// SimilarSwitchRequest is a request for similar available switches.
+// SimilarSwitchesRequest is a request for similar available switches.
 type SimilarSwitchesRequest struct {
 	Name string `json:"name"`
 }
@@ -154,7 +157,7 @@ type similarSwitch struct {
 	IP   string `json:"ip"`
 }
 
-// SimilarSwitchResponse is a response with array of similar available switches.
+// SimilarSwitchesResponse is a response with array of similar available switches.
 type SimilarSwitchesResponse struct {
 	Sws []similarSwitch `json:"switches"`
 	Err string          `json:"err,omitempty"`
