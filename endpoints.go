@@ -14,7 +14,7 @@ type Endpoints struct {
 	SimilarEndpoint endpoint.Endpoint
 }
 
-func (e Endpoints) GetDHCPLogs(ctx context.Context, mac uint64, from, to string) (DHCPLogsResponse, error) {
+func (e Endpoints) GetDHCPLogs(ctx context.Context, mac, from, to string) (DHCPLogsResponse, error) {
 	req := DHCPLogsRequest{
 		MAC:  mac,
 		From: from,
@@ -107,7 +107,7 @@ func MakeSimilarEndpoint(svc Service) endpoint.Endpoint {
 
 // DHCPLogsRequest is a request for DHCP logs.
 type DHCPLogsRequest struct {
-	MAC  uint64 `json:"mac"`
+	MAC  string `json:"mac"`
 	From string `json:"from"`
 	To   string `json:"to"`
 }

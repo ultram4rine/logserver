@@ -2,7 +2,6 @@ package logserver
 
 import (
 	"context"
-	"encoding/binary"
 	"net"
 	"strconv"
 	"time"
@@ -12,7 +11,7 @@ import (
 
 // Service interface.
 type Service interface {
-	GetDHCPLogs(ctx context.Context, mac uint64, from, to string) (DHCPLogsResponse, error)
+	GetDHCPLogs(ctx context.Context, mac, from, to string) (DHCPLogsResponse, error)
 	GetSwitchLogs(ctx context.Context, name, from, to string) (SwitchLogsResponse, error)
 	GetSimilarSwitches(ctx context.Context, name string) (SimilarSwitchesResponse, error)
 }
@@ -21,17 +20,13 @@ type Service interface {
 type LogService struct{ DB *sqlx.DB }
 
 // GetDHCPLogs returns DHCP logs from given MAC address and time interval.
-func (s LogService) GetDHCPLogs(ctx context.Context, mac uint64, from, to string) (DHCPLogsResponse, error) {
+func (s LogService) GetDHCPLogs(ctx context.Context, mac, from, to string) (DHCPLogsResponse, error) {
 	timeFrom, timeTo, err := parseTime(from, to)
 	if err != nil {
 		return DHCPLogsResponse{}, err
 	}
 
-	var mhex []byte
-	binary.BigEndian.PutUint64(mhex, mac)
-	mcvt := net.HardwareAddr(mhex).String()
-
-	rows, err := s.DB.QueryxContext(ctx, "SELECT ts, message, ip FROM dhcp.events WHERE mac = MACStringToNum(?) AND ts > ? AND ts < ? ORDER BY ts DESC", mcvt, timeFrom, timeTo)
+	rows, err := s.DB.QueryxContext(ctx, "SELECT ts, message, ip FROM dhcp.events WHERE mac = MACStringToNum(?) AND ts > ? AND ts < ? ORDER BY ts DESC", mac, timeFrom, timeTo)
 	if err != nil {
 		return DHCPLogsResponse{}, err
 	}
