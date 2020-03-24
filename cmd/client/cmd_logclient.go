@@ -109,8 +109,10 @@ func dhcp(ctx context.Context, svc logserver.Service, mac, from, to string) {
 		log.Fatalf("error getting DHCP logs of %d: %s", mac, err)
 	}
 
+	fmt.Printf("DHCP logs for %s:\n", mac)
+
 	for _, l := range logs.Logs {
-		fmt.Printf("DHCP logs for %s:\nIP:%s, Time: %s\nMessage: %s", mac, l.IP, l.TimeStamp, l.Message)
+		fmt.Printf("IP: %s, Time: %s\nMessage: %s\n\n", l.IP, l.TimeStamp, l.Message)
 	}
 }
 
@@ -120,8 +122,10 @@ func switches(ctx context.Context, svc logserver.Service, name, from, to string)
 		log.Fatalf("error getting switch logs of %s: %s", name, err)
 	}
 
+	fmt.Printf("Logs from %s switch:\n", name)
+
 	for _, l := range logs.Logs {
-		fmt.Printf("Logs from %s switch:\nIP:%s, Time: %s\nMessage: %s", name, l.IP, l.TimeStamp, l.Message)
+		fmt.Printf("IP: %s, Time: %s\nMessage: %s\n\n", l.IP, l.TimeStamp, l.Message)
 	}
 }
 
@@ -130,6 +134,8 @@ func similar(ctx context.Context, svc logserver.Service, name string) {
 	if err != nil {
 		log.Fatalf("error getting similar to %s switches: %s", name, err)
 	}
+
+	fmt.Printf("Similars to %s:\n", name)
 
 	for _, s := range names.Sws {
 		fmt.Printf("%s: %s\n", s.Name, s.IP)
