@@ -11,21 +11,21 @@ import (
 // New creates new gPRC client for logserver.
 func New(conn *grpc.ClientConn) logserver.Service {
 	var dhcpEndpoint = grpctransport.NewClient(
-		conn, "logpb.Log", "GetDHCPLogs",
+		conn, "pb.Log", "GetDHCPLogs",
 		logserver.EncodeDHCPLogsRequest,
 		logserver.DecodeDHCPLogsResponse,
 		pb.DHCPLogsResponse{},
 	).Endpoint()
 
 	var switchEndpoint = grpctransport.NewClient(
-		conn, "logpb.Log", "GetSwitchLogs",
+		conn, "pb.Log", "GetSwitchLogs",
 		logserver.EncodeSwitchLogsRequest,
 		logserver.DecodeSwitchLogsResponse,
 		pb.SwitchLogsResponse{},
 	).Endpoint()
 
 	var similarEndpoint = grpctransport.NewClient(
-		conn, "logpb.Log", "GetSimilarSwitches",
+		conn, "pb.Log", "GetSimilarSwitches",
 		logserver.EncodeSimilarSwitchesRequest,
 		logserver.DecodeSimilarSwitchesResponse,
 		pb.SimilarSwitchesResponse{},
