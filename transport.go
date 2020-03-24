@@ -3,7 +3,7 @@ package logserver
 import (
 	"context"
 
-	pb "git.sgu.ru/ultramarine/logserver/logpb"
+	pb "git.sgu.ru/ultramarine/logserver/pb"
 
 	grpctransport "github.com/go-kit/kit/transport/grpc"
 )

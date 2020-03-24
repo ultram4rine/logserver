@@ -3,7 +3,7 @@ package logserver
 import (
 	"context"
 
-	pb "git.sgu.ru/ultramarine/logserver/logpb"
+	pb "git.sgu.ru/ultramarine/logserver/pb"
 )
 
 // EncodeDHCPLogsRequest encodes DHCP logs request.

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package logpb;
+package pb;
 
 service Log {
     rpc GetDHCPLogs(DHCPLogsRequest) returns (DHCPLogsResponse) {}

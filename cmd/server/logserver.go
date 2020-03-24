@@ -9,7 +9,7 @@ import (
 	"syscall"
 
 	"git.sgu.ru/ultramarine/logserver"
-	pb "git.sgu.ru/ultramarine/logserver/logpb"
+	pb "git.sgu.ru/ultramarine/logserver/pb"
 
 	"github.com/BurntSushi/toml"
 	_ "github.com/ClickHouse/clickhouse-go"
