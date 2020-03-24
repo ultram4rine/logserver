@@ -2,7 +2,7 @@ package client
 
 import (
 	"git.sgu.ru/ultramarine/logserver"
-	pb "git.sgu.ru/ultramarine/logserver/logpb"
+	pb "git.sgu.ru/ultramarine/logserver/pb"
 
 	grpctransport "github.com/go-kit/kit/transport/grpc"
 	"google.golang.org/grpc"
