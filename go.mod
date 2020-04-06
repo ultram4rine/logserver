@@ -8,10 +8,10 @@ require (
 	github.com/go-kit/kit v0.10.0
 	github.com/golang/protobuf v1.3.5
 	github.com/jmoiron/sqlx v1.2.0
-	github.com/sirupsen/logrus v1.4.2
-	golang.org/x/net v0.0.0-20200320220750-118fecf932d8 // indirect
-	golang.org/x/sys v0.0.0-20200321134203-328b4cd54aae // indirect
-	google.golang.org/genproto v0.0.0-20200319113533-08878b785e9c // indirect
+	github.com/sirupsen/logrus v1.5.0
+	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e // indirect
+	golang.org/x/sys v0.0.0-20200406113430-c6e801f48ba2 // indirect
+	google.golang.org/genproto v0.0.0-20200406120821-33397c535dc2 // indirect
 	google.golang.org/grpc v1.28.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
