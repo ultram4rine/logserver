@@ -4,7 +4,7 @@ package pb;
 
 option go_package = ".;pb";
 
-service Log {
+service logService {
     rpc GetDHCPLogs(DHCPLogsRequest) returns (DHCPLogsResponse) {}
     rpc GetSwitchLogs(SwitchLogsRequest) returns (SwitchLogsResponse) {}
     rpc GetSimilarSwitches(SimilarSwitchesRequest) returns (SimilarSwitchesResponse) {}

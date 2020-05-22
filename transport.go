@@ -39,7 +39,7 @@ func (s *grpcServer) GetSimilarSwitches(ctx context.Context, req *pb.SimilarSwit
 }
 
 // NewGRPCServer creates new gRPC server with endpoints.
-func NewGRPCServer(_ context.Context, endpoint Endpoints) pb.LogServer {
+func NewGRPCServer(_ context.Context, endpoint Endpoints) pb.LogServiceServer {
 	return &grpcServer{
 		DHCP: grpctransport.NewServer(
 			endpoint.DHCPEndpoint,

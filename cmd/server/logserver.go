@@ -83,7 +83,7 @@ func main() {
 
 		handler := logserver.NewGRPCServer(ctx, endpoints)
 		gRPCServer := grpc.NewServer(grpc.Creds(creds))
-		pb.RegisterLogServer(gRPCServer, handler)
+		pb.RegisterLogServiceServer(gRPCServer, handler)
 
 		log.Printf("Started LogServer on %s port", conf.App.Port)
 

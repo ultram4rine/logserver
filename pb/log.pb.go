@@ -600,22 +600,22 @@ var file_log_proto_rawDesc = []byte{
 	0x29, 0x0a, 0x06, 0x73, 0x77, 0x69, 0x74, 0x63, 0x68, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32,
 	0x11, 0x2e, 0x70, 0x62, 0x2e, 0x53, 0x69, 0x6d, 0x69, 0x6c, 0x61, 0x72, 0x53, 0x77, 0x69, 0x74,
 	0x63, 0x68, 0x52, 0x06, 0x73, 0x77, 0x69, 0x74, 0x63, 0x68, 0x12, 0x10, 0x0a, 0x03, 0x65, 0x72,
-	0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x65, 0x72, 0x72, 0x32, 0xd4, 0x01, 0x0a,
-	0x03, 0x4c, 0x6f, 0x67, 0x12, 0x3a, 0x0a, 0x0b, 0x47, 0x65, 0x74, 0x44, 0x48, 0x43, 0x50, 0x4c,
-	0x6f, 0x67, 0x73, 0x12, 0x13, 0x2e, 0x70, 0x62, 0x2e, 0x44, 0x48, 0x43, 0x50, 0x4c, 0x6f, 0x67,
-	0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x14, 0x2e, 0x70, 0x62, 0x2e, 0x44, 0x48,
-	0x43, 0x50, 0x4c, 0x6f, 0x67, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00,
-	0x12, 0x40, 0x0a, 0x0d, 0x47, 0x65, 0x74, 0x53, 0x77, 0x69, 0x74, 0x63, 0x68, 0x4c, 0x6f, 0x67,
-	0x73, 0x12, 0x15, 0x2e, 0x70, 0x62, 0x2e, 0x53, 0x77, 0x69, 0x74, 0x63, 0x68, 0x4c, 0x6f, 0x67,
-	0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x16, 0x2e, 0x70, 0x62, 0x2e, 0x53, 0x77,
-	0x69, 0x74, 0x63, 0x68, 0x4c, 0x6f, 0x67, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
-	0x22, 0x00, 0x12, 0x4f, 0x0a, 0x12, 0x47, 0x65, 0x74, 0x53, 0x69, 0x6d, 0x69, 0x6c, 0x61, 0x72,
-	0x53, 0x77, 0x69, 0x74, 0x63, 0x68, 0x65, 0x73, 0x12, 0x1a, 0x2e, 0x70, 0x62, 0x2e, 0x53, 0x69,
-	0x6d, 0x69, 0x6c, 0x61, 0x72, 0x53, 0x77, 0x69, 0x74, 0x63, 0x68, 0x65, 0x73, 0x52, 0x65, 0x71,
-	0x75, 0x65, 0x73, 0x74, 0x1a, 0x1b, 0x2e, 0x70, 0x62, 0x2e, 0x53, 0x69, 0x6d, 0x69, 0x6c, 0x61,
-	0x72, 0x53, 0x77, 0x69, 0x74, 0x63, 0x68, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x22, 0x00, 0x42, 0x06, 0x5a, 0x04, 0x2e, 0x3b, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x33,
+	0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x65, 0x72, 0x72, 0x32, 0xdb, 0x01, 0x0a,
+	0x0a, 0x6c, 0x6f, 0x67, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x3a, 0x0a, 0x0b, 0x47,
+	0x65, 0x74, 0x44, 0x48, 0x43, 0x50, 0x4c, 0x6f, 0x67, 0x73, 0x12, 0x13, 0x2e, 0x70, 0x62, 0x2e,
+	0x44, 0x48, 0x43, 0x50, 0x4c, 0x6f, 0x67, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
+	0x14, 0x2e, 0x70, 0x62, 0x2e, 0x44, 0x48, 0x43, 0x50, 0x4c, 0x6f, 0x67, 0x73, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x40, 0x0a, 0x0d, 0x47, 0x65, 0x74, 0x53, 0x77,
+	0x69, 0x74, 0x63, 0x68, 0x4c, 0x6f, 0x67, 0x73, 0x12, 0x15, 0x2e, 0x70, 0x62, 0x2e, 0x53, 0x77,
+	0x69, 0x74, 0x63, 0x68, 0x4c, 0x6f, 0x67, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
+	0x16, 0x2e, 0x70, 0x62, 0x2e, 0x53, 0x77, 0x69, 0x74, 0x63, 0x68, 0x4c, 0x6f, 0x67, 0x73, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x4f, 0x0a, 0x12, 0x47, 0x65, 0x74,
+	0x53, 0x69, 0x6d, 0x69, 0x6c, 0x61, 0x72, 0x53, 0x77, 0x69, 0x74, 0x63, 0x68, 0x65, 0x73, 0x12,
+	0x1a, 0x2e, 0x70, 0x62, 0x2e, 0x53, 0x69, 0x6d, 0x69, 0x6c, 0x61, 0x72, 0x53, 0x77, 0x69, 0x74,
+	0x63, 0x68, 0x65, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1b, 0x2e, 0x70, 0x62,
+	0x2e, 0x53, 0x69, 0x6d, 0x69, 0x6c, 0x61, 0x72, 0x53, 0x77, 0x69, 0x74, 0x63, 0x68, 0x65, 0x73,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x42, 0x06, 0x5a, 0x04, 0x2e, 0x3b,
+	0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -646,12 +646,12 @@ var file_log_proto_depIdxs = []int32{
 	1, // 0: pb.DHCPLogsResponse.log:type_name -> pb.DHCPLog
 	4, // 1: pb.SwitchLogsResponse.log:type_name -> pb.SwitchLog
 	7, // 2: pb.SimilarSwitchesResponse.switch:type_name -> pb.SimilarSwitch
-	0, // 3: pb.Log.GetDHCPLogs:input_type -> pb.DHCPLogsRequest
-	3, // 4: pb.Log.GetSwitchLogs:input_type -> pb.SwitchLogsRequest
-	6, // 5: pb.Log.GetSimilarSwitches:input_type -> pb.SimilarSwitchesRequest
-	2, // 6: pb.Log.GetDHCPLogs:output_type -> pb.DHCPLogsResponse
-	5, // 7: pb.Log.GetSwitchLogs:output_type -> pb.SwitchLogsResponse
-	8, // 8: pb.Log.GetSimilarSwitches:output_type -> pb.SimilarSwitchesResponse
+	0, // 3: pb.logService.GetDHCPLogs:input_type -> pb.DHCPLogsRequest
+	3, // 4: pb.logService.GetSwitchLogs:input_type -> pb.SwitchLogsRequest
+	6, // 5: pb.logService.GetSimilarSwitches:input_type -> pb.SimilarSwitchesRequest
+	2, // 6: pb.logService.GetDHCPLogs:output_type -> pb.DHCPLogsResponse
+	5, // 7: pb.logService.GetSwitchLogs:output_type -> pb.SwitchLogsResponse
+	8, // 8: pb.logService.GetSimilarSwitches:output_type -> pb.SimilarSwitchesResponse
 	6, // [6:9] is the sub-list for method output_type
 	3, // [3:6] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
@@ -802,144 +802,144 @@ var _ grpc.ClientConnInterface
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion6
 
-// LogClient is the client API for Log service.
+// LogServiceClient is the client API for LogService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type LogClient interface {
+type LogServiceClient interface {
 	GetDHCPLogs(ctx context.Context, in *DHCPLogsRequest, opts ...grpc.CallOption) (*DHCPLogsResponse, error)
 	GetSwitchLogs(ctx context.Context, in *SwitchLogsRequest, opts ...grpc.CallOption) (*SwitchLogsResponse, error)
 	GetSimilarSwitches(ctx context.Context, in *SimilarSwitchesRequest, opts ...grpc.CallOption) (*SimilarSwitchesResponse, error)
 }
 
-type logClient struct {
+type logServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewLogClient(cc grpc.ClientConnInterface) LogClient {
-	return &logClient{cc}
+func NewLogServiceClient(cc grpc.ClientConnInterface) LogServiceClient {
+	return &logServiceClient{cc}
 }
 
-func (c *logClient) GetDHCPLogs(ctx context.Context, in *DHCPLogsRequest, opts ...grpc.CallOption) (*DHCPLogsResponse, error) {
+func (c *logServiceClient) GetDHCPLogs(ctx context.Context, in *DHCPLogsRequest, opts ...grpc.CallOption) (*DHCPLogsResponse, error) {
 	out := new(DHCPLogsResponse)
-	err := c.cc.Invoke(ctx, "/pb.Log/GetDHCPLogs", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pb.logService/GetDHCPLogs", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *logClient) GetSwitchLogs(ctx context.Context, in *SwitchLogsRequest, opts ...grpc.CallOption) (*SwitchLogsResponse, error) {
+func (c *logServiceClient) GetSwitchLogs(ctx context.Context, in *SwitchLogsRequest, opts ...grpc.CallOption) (*SwitchLogsResponse, error) {
 	out := new(SwitchLogsResponse)
-	err := c.cc.Invoke(ctx, "/pb.Log/GetSwitchLogs", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pb.logService/GetSwitchLogs", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *logClient) GetSimilarSwitches(ctx context.Context, in *SimilarSwitchesRequest, opts ...grpc.CallOption) (*SimilarSwitchesResponse, error) {
+func (c *logServiceClient) GetSimilarSwitches(ctx context.Context, in *SimilarSwitchesRequest, opts ...grpc.CallOption) (*SimilarSwitchesResponse, error) {
 	out := new(SimilarSwitchesResponse)
-	err := c.cc.Invoke(ctx, "/pb.Log/GetSimilarSwitches", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pb.logService/GetSimilarSwitches", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// LogServer is the server API for Log service.
-type LogServer interface {
+// LogServiceServer is the server API for LogService service.
+type LogServiceServer interface {
 	GetDHCPLogs(context.Context, *DHCPLogsRequest) (*DHCPLogsResponse, error)
 	GetSwitchLogs(context.Context, *SwitchLogsRequest) (*SwitchLogsResponse, error)
 	GetSimilarSwitches(context.Context, *SimilarSwitchesRequest) (*SimilarSwitchesResponse, error)
 }
 
-// UnimplementedLogServer can be embedded to have forward compatible implementations.
-type UnimplementedLogServer struct {
+// UnimplementedLogServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedLogServiceServer struct {
 }
 
-func (*UnimplementedLogServer) GetDHCPLogs(context.Context, *DHCPLogsRequest) (*DHCPLogsResponse, error) {
+func (*UnimplementedLogServiceServer) GetDHCPLogs(context.Context, *DHCPLogsRequest) (*DHCPLogsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDHCPLogs not implemented")
 }
-func (*UnimplementedLogServer) GetSwitchLogs(context.Context, *SwitchLogsRequest) (*SwitchLogsResponse, error) {
+func (*UnimplementedLogServiceServer) GetSwitchLogs(context.Context, *SwitchLogsRequest) (*SwitchLogsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSwitchLogs not implemented")
 }
-func (*UnimplementedLogServer) GetSimilarSwitches(context.Context, *SimilarSwitchesRequest) (*SimilarSwitchesResponse, error) {
+func (*UnimplementedLogServiceServer) GetSimilarSwitches(context.Context, *SimilarSwitchesRequest) (*SimilarSwitchesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSimilarSwitches not implemented")
 }
 
-func RegisterLogServer(s *grpc.Server, srv LogServer) {
-	s.RegisterService(&_Log_serviceDesc, srv)
+func RegisterLogServiceServer(s *grpc.Server, srv LogServiceServer) {
+	s.RegisterService(&_LogService_serviceDesc, srv)
 }
 
-func _Log_GetDHCPLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _LogService_GetDHCPLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DHCPLogsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(LogServer).GetDHCPLogs(ctx, in)
+		return srv.(LogServiceServer).GetDHCPLogs(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pb.Log/GetDHCPLogs",
+		FullMethod: "/pb.logService/GetDHCPLogs",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LogServer).GetDHCPLogs(ctx, req.(*DHCPLogsRequest))
+		return srv.(LogServiceServer).GetDHCPLogs(ctx, req.(*DHCPLogsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Log_GetSwitchLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _LogService_GetSwitchLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SwitchLogsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(LogServer).GetSwitchLogs(ctx, in)
+		return srv.(LogServiceServer).GetSwitchLogs(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pb.Log/GetSwitchLogs",
+		FullMethod: "/pb.logService/GetSwitchLogs",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LogServer).GetSwitchLogs(ctx, req.(*SwitchLogsRequest))
+		return srv.(LogServiceServer).GetSwitchLogs(ctx, req.(*SwitchLogsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Log_GetSimilarSwitches_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _LogService_GetSimilarSwitches_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SimilarSwitchesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(LogServer).GetSimilarSwitches(ctx, in)
+		return srv.(LogServiceServer).GetSimilarSwitches(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pb.Log/GetSimilarSwitches",
+		FullMethod: "/pb.logService/GetSimilarSwitches",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LogServer).GetSimilarSwitches(ctx, req.(*SimilarSwitchesRequest))
+		return srv.(LogServiceServer).GetSimilarSwitches(ctx, req.(*SimilarSwitchesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-var _Log_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "pb.Log",
-	HandlerType: (*LogServer)(nil),
+var _LogService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "pb.logService",
+	HandlerType: (*LogServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "GetDHCPLogs",
-			Handler:    _Log_GetDHCPLogs_Handler,
+			Handler:    _LogService_GetDHCPLogs_Handler,
 		},
 		{
 			MethodName: "GetSwitchLogs",
-			Handler:    _Log_GetSwitchLogs_Handler,
+			Handler:    _LogService_GetSwitchLogs_Handler,
 		},
 		{
 			MethodName: "GetSimilarSwitches",
-			Handler:    _Log_GetSimilarSwitches_Handler,
+			Handler:    _LogService_GetSimilarSwitches_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
