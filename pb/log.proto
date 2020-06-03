@@ -5,15 +5,18 @@ package pb;
 option go_package = ".;pb";
 
 service logService {
-    rpc GetDHCPLogs(DHCPLogsRequest) returns (DHCPLogsResponse) {}
-    rpc GetSwitchLogs(SwitchLogsRequest) returns (SwitchLogsResponse) {}
-    rpc GetSimilarSwitches(SimilarSwitchesRequest) returns (SimilarSwitchesResponse) {}
+    rpc GetDHCPLogs (DHCPLogsRequest) returns (DHCPLogsResponse) {
+    }
+    rpc GetSwitchLogs (SwitchLogsRequest) returns (SwitchLogsResponse) {
+    }
+    rpc GetSimilarSwitches (SimilarSwitchesRequest) returns (SimilarSwitchesResponse) {
+    }
 }
 
 message DHCPLogsRequest {
     string MAC = 1;
-    string from = 2;
-    string to = 3;
+    int64 from = 2;
+    int64 to = 3;
 }
 
 message DHCPLog {
@@ -23,14 +26,14 @@ message DHCPLog {
 }
 
 message DHCPLogsResponse {
-    repeated DHCPLog log = 1;
+    repeated DHCPLog logs = 1;
     string err = 2;
 }
 
 message SwitchLogsRequest {
     string name = 1;
-    string from = 2;
-    string to = 3;
+    int64 from = 2;
+    int64 to = 3;
 }
 
 message SwitchLog {
@@ -41,7 +44,7 @@ message SwitchLog {
 }
 
 message SwitchLogsResponse {
-    repeated SwitchLog log = 1;
+    repeated SwitchLog logs = 1;
     string err = 2;
 }
 
@@ -55,6 +58,6 @@ message SimilarSwitch {
 }
 
 message SimilarSwitchesResponse {
-    repeated SimilarSwitch switch = 1;
+    repeated SimilarSwitch switches = 1;
     string err = 2;
 }

@@ -9,7 +9,7 @@ import (
 	"syscall"
 
 	"git.sgu.ru/ultramarine/logserver"
-	pb "git.sgu.ru/ultramarine/logserver/pb"
+	"git.sgu.ru/ultramarine/logserver/pb"
 
 	"github.com/BurntSushi/toml"
 	_ "github.com/ClickHouse/clickhouse-go"
@@ -38,13 +38,13 @@ type db struct {
 	Pass string `toml:"pass"`
 }
 
-var confpath = kingpin.Flag("conf", "Path to config file.").Short('c').Default("logserver.conf.toml").String()
+var confPath = kingpin.Flag("conf", "Path to config file.").Short('c').Default("logserver.conf.toml").String()
 
 func main() {
 	kingpin.Parse()
 
-	if _, err := toml.DecodeFile(*confpath, &conf); err != nil {
-		log.Fatalf("Error decoding config file from %s", *confpath)
+	if _, err := toml.DecodeFile(*confPath, &conf); err != nil {
+		log.Fatalf("Error decoding config file from %s", *confPath)
 	}
 
 	ctx := context.Background()

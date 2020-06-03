@@ -9,9 +9,18 @@ import (
 )
 
 type grpcServer struct {
+	Auth    grpctransport.Handler
 	DHCP    grpctransport.Handler
 	Switch  grpctransport.Handler
 	Similar grpctransport.Handler
+}
+
+func (s *grpcServer) Authenticate(ctx context.Context, req *pb.User) (*pb.Token, error) {
+	_, resp, err := s.Auth.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*pb.Token), nil
 }
 
 func (s *grpcServer) GetDHCPLogs(ctx context.Context, req *pb.DHCPLogsRequest) (*pb.DHCPLogsResponse, error) {
@@ -41,6 +50,11 @@ func (s *grpcServer) GetSimilarSwitches(ctx context.Context, req *pb.SimilarSwit
 // NewGRPCServer creates new gRPC server with endpoints.
 func NewGRPCServer(_ context.Context, endpoint Endpoints) pb.LogServiceServer {
 	return &grpcServer{
+		Auth: grpctransport.NewServer(
+			endpoint.AuthEndpoint,
+			DecodeUser,
+			EncodeToken,
+		),
 		DHCP: grpctransport.NewServer(
 			endpoint.DHCPEndpoint,
 			DecodeDHCPLogsRequest,

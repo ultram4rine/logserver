@@ -3,7 +3,7 @@ package logserver
 import (
 	"context"
 
-	pb "git.sgu.ru/ultramarine/logserver/pb"
+	"git.sgu.ru/ultramarine/logserver/pb"
 )
 
 // EncodeDHCPLogsRequest encodes DHCP logs request.
@@ -39,8 +39,8 @@ func EncodeDHCPLogsResponse(_ context.Context, r interface{}) (interface{}, erro
 		logs = append(logs, log)
 	}
 	return &pb.DHCPLogsResponse{
-		Log: logs,
-		Err: res.Err,
+		Logs: logs,
+		Err:  res.Err,
 	}, nil
 }
 
@@ -48,7 +48,7 @@ func EncodeDHCPLogsResponse(_ context.Context, r interface{}) (interface{}, erro
 func DecodeDHCPLogsResponse(_ context.Context, r interface{}) (interface{}, error) {
 	res := r.(*pb.DHCPLogsResponse)
 	var logs []dhcpLog
-	for _, l := range res.Log {
+	for _, l := range res.Logs {
 		log := dhcpLog{
 			IP:        l.Ip,
 			TimeStamp: l.Timestamp,
@@ -96,8 +96,8 @@ func EncodeSwitchLogsResponse(_ context.Context, r interface{}) (interface{}, er
 		logs = append(logs, log)
 	}
 	return &pb.SwitchLogsResponse{
-		Log: logs,
-		Err: res.Err,
+		Logs: logs,
+		Err:  res.Err,
 	}, nil
 }
 
@@ -105,7 +105,7 @@ func EncodeSwitchLogsResponse(_ context.Context, r interface{}) (interface{}, er
 func DecodeSwitchLogsResponse(_ context.Context, r interface{}) (interface{}, error) {
 	res := r.(*pb.SwitchLogsResponse)
 	var logs []switchLog
-	for _, l := range res.Log {
+	for _, l := range res.Logs {
 		log := switchLog{
 			IP:        l.Ip,
 			Name:      l.Name,
@@ -148,8 +148,8 @@ func EncodeSimilarSwitchesResponse(_ context.Context, r interface{}) (interface{
 		sws = append(sws, s)
 	}
 	return &pb.SimilarSwitchesResponse{
-		Switch: sws,
-		Err:    res.Err,
+		Switches: sws,
+		Err:      res.Err,
 	}, nil
 }
 
@@ -157,7 +157,7 @@ func EncodeSimilarSwitchesResponse(_ context.Context, r interface{}) (interface{
 func DecodeSimilarSwitchesResponse(_ context.Context, r interface{}) (interface{}, error) {
 	res := r.(*pb.SimilarSwitchesResponse)
 	var sws []similarSwitch
-	for _, l := range res.Switch {
+	for _, l := range res.Switches {
 		s := similarSwitch{
 			IP:   l.IP,
 			Name: l.Name,

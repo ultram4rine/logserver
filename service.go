@@ -3,7 +3,6 @@ package logserver
 import (
 	"context"
 	"net"
-	"strconv"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -11,20 +10,19 @@ import (
 
 // Service interface.
 type Service interface {
-	GetDHCPLogs(ctx context.Context, mac, from, to string) (DHCPLogsResponse, error)
-	GetSwitchLogs(ctx context.Context, name, from, to string) (SwitchLogsResponse, error)
+	GetDHCPLogs(ctx context.Context, mac string, from, to int64) (DHCPLogsResponse, error)
+	GetSwitchLogs(ctx context.Context, name string, from, to int64) (SwitchLogsResponse, error)
 	GetSimilarSwitches(ctx context.Context, name string) (SimilarSwitchesResponse, error)
 }
 
 // LogService is a Service interface implementation.
-type LogService struct{ DB *sqlx.DB }
+type LogService struct {
+	DB *sqlx.DB
+}
 
 // GetDHCPLogs returns DHCP logs from given MAC address and time interval.
-func (s LogService) GetDHCPLogs(ctx context.Context, mac, from, to string) (DHCPLogsResponse, error) {
-	timeFrom, timeTo, err := parseTime(from, to)
-	if err != nil {
-		return DHCPLogsResponse{}, err
-	}
+func (s LogService) GetDHCPLogs(ctx context.Context, mac string, from, to int64) (DHCPLogsResponse, error) {
+	timeFrom, timeTo := parseTime(from, to)
 
 	rows, err := s.DB.QueryxContext(ctx, "SELECT ts, message, ip FROM dhcp.events WHERE mac = MACStringToNum(?) AND ts > ? AND ts < ? ORDER BY ts DESC", mac, timeFrom, timeTo)
 	if err != nil {
@@ -53,11 +51,8 @@ func (s LogService) GetDHCPLogs(ctx context.Context, mac, from, to string) (DHCP
 }
 
 // GetSwitchLogs returns logs from given switch and time interval.
-func (s LogService) GetSwitchLogs(ctx context.Context, name, from, to string) (SwitchLogsResponse, error) {
-	timeFrom, timeTo, err := parseTime(from, to)
-	if err != nil {
-		return SwitchLogsResponse{}, err
-	}
+func (s LogService) GetSwitchLogs(ctx context.Context, name string, from, to int64) (SwitchLogsResponse, error) {
+	timeFrom, timeTo := parseTime(from, to)
 
 	rows, err := s.DB.QueryxContext(ctx, "SELECT ts_remote, log_msg FROM switchlogs WHERE sw_name = ? AND ts_local > ? AND ts_local < ? ORDER BY ts_local DESC", name, timeFrom, timeTo)
 	if err != nil {
@@ -109,21 +104,8 @@ func (s LogService) GetSimilarSwitches(ctx context.Context, name string) (Simila
 	return switches, nil
 }
 
-func parseTime(fromStr, toStr string) (time.Time, time.Time, error) {
-	from, err := strconv.Atoi(fromStr)
-	if err != nil {
-		return time.Time{}, time.Time{}, err
-	}
-	to, err := strconv.Atoi(toStr)
-	if err != nil {
-		return time.Time{}, time.Time{}, err
-	}
-
-	fromDuration := time.Minute * -time.Duration(from)
-	toDuration := time.Minute * -time.Duration(to)
-
-	timeFrom := time.Now().Add(fromDuration)
-	timeTo := time.Now().Add(toDuration)
-
-	return timeFrom, timeTo, nil
+func parseTime(fromUnix, toUnix int64) (time.Time, time.Time) {
+	from := time.Unix(fromUnix, 0)
+	to := time.Unix(toUnix, 0)
+	return from, to
 }

@@ -15,7 +15,7 @@ type Endpoints struct {
 }
 
 // GetDHCPLogs is a endpoint for DHCP logs.
-func (e Endpoints) GetDHCPLogs(ctx context.Context, mac, from, to string) (DHCPLogsResponse, error) {
+func (e Endpoints) GetDHCPLogs(ctx context.Context, mac string, from, to int64) (DHCPLogsResponse, error) {
 	req := DHCPLogsRequest{
 		MAC:  mac,
 		From: from,
@@ -33,7 +33,7 @@ func (e Endpoints) GetDHCPLogs(ctx context.Context, mac, from, to string) (DHCPL
 }
 
 // GetSwitchLogs is a endpoint for logs from switch.
-func (e Endpoints) GetSwitchLogs(ctx context.Context, name, from, to string) (SwitchLogsResponse, error) {
+func (e Endpoints) GetSwitchLogs(ctx context.Context, name string, from, to int64) (SwitchLogsResponse, error) {
 	req := SwitchLogsRequest{
 		Name: name,
 		From: from,
@@ -111,8 +111,8 @@ func MakeSimilarEndpoint(svc Service) endpoint.Endpoint {
 // DHCPLogsRequest is a request for DHCP logs.
 type DHCPLogsRequest struct {
 	MAC  string `json:"mac"`
-	From string `json:"from"`
-	To   string `json:"to"`
+	From int64  `json:"from"`
+	To   int64  `json:"to"`
 }
 
 type dhcpLog struct {
@@ -130,8 +130,8 @@ type DHCPLogsResponse struct {
 // SwitchLogsRequest is a request for logs from switch.
 type SwitchLogsRequest struct {
 	Name string `json:"name"`
-	From string `json:"from"`
-	To   string `json:"to"`
+	From int64  `json:"from"`
+	To   int64  `json:"to"`
 }
 
 type switchLog struct {
