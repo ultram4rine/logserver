@@ -19,7 +19,7 @@
     "google-protobuf": "^3.12.2",
     "grpc-web": "^1.1.0",
     "vue": "^2.6.11",
-    "vuetify": "^2.2.31"
+    "vuetify": "^2.2.32"
   },
   "devDependencies": {
     "@babel/core": "^7.10.2",
