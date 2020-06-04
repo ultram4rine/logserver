@@ -88,6 +88,24 @@
                             </v-col>
 
                             <v-col>
+                                <v-menu ref="menu" v-model="menuFromTime" :close-on-content-click="false"
+                                        :nudge-right="40"
+                                        :return-value.sync="fromTime" transition="scale-transition" offset-y
+                                        max-width="290px"
+                                        min-width="290px">
+                                    <template v-slot:activator="{ on }">
+                                        <v-text-field v-model="fromTime" label="From this time"
+                                                      readonly v-on="on"></v-text-field>
+                                    </template>
+                                    <v-time-picker v-if="menuFromTime" v-model="fromTime" full-width use-seconds
+                                                   format="24hr"
+                                                   @click:second="$refs.menu.save(fromTime)"></v-time-picker>
+                                </v-menu>
+                            </v-col>
+                        </v-row>
+
+                        <v-row>
+                            <v-col>
                                 <v-menu
                                         ref="menu"
                                         v-model="menuToDate"
@@ -110,24 +128,6 @@
                                         <v-btn text color="primary" @click="menuToDate = false">Cancel</v-btn>
                                         <v-btn text color="primary" @click="$refs.menu.save(toDate)">OK</v-btn>
                                     </v-date-picker>
-                                </v-menu>
-                            </v-col>
-                        </v-row>
-
-                        <v-row>
-                            <v-col>
-                                <v-menu ref="menu" v-model="menuFromTime" :close-on-content-click="false"
-                                        :nudge-right="40"
-                                        :return-value.sync="fromTime" transition="scale-transition" offset-y
-                                        max-width="290px"
-                                        min-width="290px">
-                                    <template v-slot:activator="{ on }">
-                                        <v-text-field v-model="fromTime" label="From this time"
-                                                      readonly v-on="on"></v-text-field>
-                                    </template>
-                                    <v-time-picker v-if="menuFromTime" v-model="fromTime" full-width use-seconds
-                                                   format="24hr"
-                                                   @click:second="$refs.menu.save(fromTime)"></v-time-picker>
                                 </v-menu>
                             </v-col>
 
