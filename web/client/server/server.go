@@ -23,7 +23,7 @@ var Conf struct {
 }
 
 var Core struct {
-	GRPC  logserver.Service
+	Svc   logserver.Service
 	Store *sessions.CookieStore
 }
 
@@ -60,9 +60,8 @@ func Init(confpath string) (err error) {
 	if err != nil {
 		return fmt.Errorf("failed to connect to gRPC server at %s: %s", Conf.App.GRPCServer, err)
 	}
-	defer conn.Close()
 
-	Core.GRPC = client.New(conn)
+	Core.Svc = client.New(conn)
 
 	return nil
 }
