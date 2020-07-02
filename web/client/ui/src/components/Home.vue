@@ -17,6 +17,7 @@
 
           <v-text-field
             v-if="selection==='DHCP Logs'"
+            v-model="mac"
             hide-details
             single-line
             placeholder="XX:XX:XX:XX:XX:XX"
@@ -50,7 +51,11 @@
 
           <v-spacer></v-spacer>
 
-          <v-btn color="primary" v-on:click="periodForm=true">Choose time period</v-btn>
+          <v-btn
+            v-if="time==='Period'"
+            color="primary"
+            v-on:click="periodForm=true"
+          >Choose time period</v-btn>
 
           <v-spacer></v-spacer>
 
@@ -67,7 +72,7 @@
       </v-card>
     </v-card>
 
-    <v-content>
+    <v-main>
       <v-container fluid>
         <v-data-table
           v-if="selection==='DHCP Logs'"
@@ -84,7 +89,7 @@
           :items="switchLogs"
         ></v-data-table>
       </v-container>
-    </v-content>
+    </v-main>
 
     <v-dialog v-model="periodForm" max-width="500px">
       <v-card dark>
@@ -100,7 +105,7 @@
             <v-row>
               <v-col>
                 <v-menu
-                  ref="menu"
+                  ref="menuFD"
                   v-model="menuFromDate"
                   :close-on-content-click="false"
                   :return-value.sync="fromDate"
@@ -114,14 +119,14 @@
                   <v-date-picker v-model="fromDate" no-title scrollable>
                     <v-spacer></v-spacer>
                     <v-btn text color="primary" @click="menuFromDate = false">Cancel</v-btn>
-                    <v-btn text color="primary" @click="$refs.menu.save(fromDate)">OK</v-btn>
+                    <v-btn text color="primary" @click="$refs.menuFD.save(fromDate)">OK</v-btn>
                   </v-date-picker>
                 </v-menu>
               </v-col>
 
               <v-col>
                 <v-menu
-                  ref="menu"
+                  ref="menuFT"
                   v-model="menuFromTime"
                   :close-on-content-click="false"
                   :nudge-right="40"
@@ -140,7 +145,7 @@
                     full-width
                     use-seconds
                     format="24hr"
-                    @click:second="$refs.menu.save(fromTime)"
+                    @click:second="$refs.menuFT.save(fromTime)"
                   ></v-time-picker>
                 </v-menu>
               </v-col>
@@ -149,7 +154,7 @@
             <v-row>
               <v-col>
                 <v-menu
-                  ref="menu"
+                  ref="menuTD"
                   v-model="menuToDate"
                   :close-on-content-click="false"
                   :return-value.sync="toDate"
@@ -163,14 +168,14 @@
                   <v-date-picker v-model="toDate" no-title scrollable>
                     <v-spacer></v-spacer>
                     <v-btn text color="primary" @click="menuToDate = false">Cancel</v-btn>
-                    <v-btn text color="primary" @click="$refs.menu.save(toDate)">OK</v-btn>
+                    <v-btn text color="primary" @click="$refs.menuTD.save(toDate)">OK</v-btn>
                   </v-date-picker>
                 </v-menu>
               </v-col>
 
               <v-col>
                 <v-menu
-                  ref="menu"
+                  ref="menuTT"
                   v-model="menuToTime"
                   :close-on-content-click="false"
                   :nudge-right="40"
@@ -189,7 +194,7 @@
                     full-width
                     use-seconds
                     format="24hr"
-                    @click:second="$refs.menu.save(toTime)"
+                    @click:second="$refs.menuTT.save(toTime)"
                   ></v-time-picker>
                 </v-menu>
               </v-col>
@@ -199,7 +204,7 @@
         <v-divider></v-divider>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="orange darken-1" @click="periodForm=false">Add</v-btn>
+          <v-btn color="primary" @click="periodForm=false">Ok</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -208,6 +213,7 @@
 
 <script>
 import { mdiCalendar, mdiClockOutline, mdiClose } from "@mdi/js";
+import axios from "axios";
 
 export default {
   name: "Home",
@@ -232,17 +238,17 @@ export default {
 
       time: "Last 5 minutes",
       times: [
+        "Period",
         "Last 5 minutes",
         "Last 15 minutes",
         "Last 30 minutes",
-        "Last 1 hour",
+        "Last hour",
         "Last 3 hours",
         "Last 6 hours",
         "Last 12 hours",
-        "Last 1 day",
+        "Last day",
         "Last 3 days",
-        "Last week",
-        "Period"
+        "Last week"
       ],
       period: false,
       periodForm: false,
@@ -279,37 +285,74 @@ export default {
     };
   },
 
-  created: function() {
-    this.client = new logServiceClient("http://localhost:8080", null, null);
-  },
-
   methods: {
     getDHCPLogs: function() {
-      let req = new DHCPLogsRequest();
-      req.setMac(this.mac);
-      req.setFrom(this.fromTime);
-      req.setTo(this.toTime);
-      this.client.getDHCPLogs(req, {}, (err, resp) => {
-        this.DHCPLogs = resp.toObject().logsList;
-      });
+      let dates = this.transformDates(),
+        unixFrom = dates.unixFrom,
+        unixTo = dates.unixTo;
+
+      axios.get("/get/dhcp", { mac: this.mac, from: unixFrom, to: unixTo });
     },
 
     getSwitchLogs: function() {
-      let req = new SwitchLogsRequest();
-      req.setName(this.sw);
-      req.setFrom(this.fromTime);
-      req.setTo(this.toTime);
-      this.client.getSwitchLogs(req, {}, (err, resp) => {
-        this.switchLogs = resp.toObject().logsList;
-      });
+      let dates = this.transformDates(),
+        unixFrom = dates.unixFrom,
+        unixTo = dates.unixTo;
+
+      axios.get("/get/switch", { name: this.sw, from: unixFrom, to: unixTo });
     },
 
     getSimilarSwitches: function() {
-      let req = new SimilarSwitchesRequest();
-      req.setName(this.sw);
-      this.client.getSimilarSwitches(req, {}, (err, resp) => {
-        this.similarSwitches = resp.toObject().switchesList;
-      });
+      axios.get("/get/similar", { name: this.sw });
+    },
+
+    transformDates: function() {
+      let unixFrom, unixTo;
+
+      if (this.time === "Period") {
+        unixFrom =
+          new Date(`${this.fromDate} ${this.fromTime}`).getTime() / 1000;
+        unixTo = new Date(`${this.toDate} ${this.toTime}`).getTime() / 1000;
+      } else {
+        unixFrom = new Date();
+        switch (this.time) {
+          case "Last 5 minutes":
+            unixFrom.setMinutes(unixFrom.getMinutes() - 5);
+            break;
+          case "Last 15 minutes":
+            unixFrom.setMinutes(unixFrom.getMinutes() - 15);
+            break;
+          case "Last 30 minutes":
+            unixFrom.setMinutes(unixFrom.getMinutes() - 30);
+            break;
+          case "Last hour":
+            unixFrom.setHours(unixFrom.getHours() - 1);
+            break;
+          case "Last 3 hours":
+            unixFrom.setHours(unixFrom.getHours() - 3);
+            break;
+          case "Last 6 hours":
+            unixFrom.setHours(unixFrom.getHours() - 6);
+            break;
+          case "Last 12 hours":
+            unixFrom.setHours(unixFrom.getHours() - 12);
+            break;
+          case "Last day":
+            unixFrom.setHours(unixFrom.getHours() - 24);
+            break;
+          case "Last 3 days":
+            unixFrom.setHours(unixFrom.getHours() - 3 * 24);
+            break;
+          case "Last week":
+            unixFrom.setHours(unixFrom.getHours() - 7 * 24);
+            break;
+        }
+
+        unixFrom = Math.round(unixFrom.getTime() / 1000);
+        unixTo = Math.round(new Date().getTime() / 1000);
+      }
+
+      return { unixFrom, unixTo };
     }
   },
 
