@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"log"
+	"net/http"
 
 	"git.sgu.ru/ultramarine/logserver/web/client/handlers"
 	"git.sgu.ru/ultramarine/logserver/web/client/server"
@@ -17,7 +18,7 @@ func main() {
 
 	err := server.Init(*confpath)
 	if err != nil {
-		log.Fatalf("Can't init programm: %v", err)
+		log.Fatalf("failed to init logviewer: %v", err)
 	}
 
 	router := mux.NewRouter()
@@ -28,4 +29,9 @@ func main() {
 	router.HandleFunc("/get/dhcp", handlers.GetDHCPLogsHandler).Methods("GET")
 	router.HandleFunc("/get/switch", handlers.GetSwitchLogsHandler).Methods("GET")
 	router.HandleFunc("/get/similar", handlers.GetSimilarSwitchesHandler).Methods("GET")
+
+	err = http.ListenAndServe(":"+server.Conf.App.ListenPort, router)
+	if err != nil {
+		log.Fatalf("failed to start logviewer: %v", err)
+	}
 }
