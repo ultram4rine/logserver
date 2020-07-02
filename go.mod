@@ -6,6 +6,7 @@ require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/ClickHouse/clickhouse-go v1.4.1
 	github.com/go-kit/kit v0.10.0
+	github.com/go-ldap/ldap v3.0.3+incompatible
 	github.com/golang/protobuf v1.4.2
 	github.com/gorilla/mux v1.7.4
 	github.com/gorilla/sessions v1.2.0
@@ -18,5 +19,5 @@ require (
 	google.golang.org/grpc v1.30.0
 	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
-	github.com/go-ldap/ldap v3.0.3+incompatible
+	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 )
