@@ -1,0 +1,12 @@
+[Unit]
+Description=WEB Application for viewing logs from ClickHouse
+After=network-online.target
+
+[Service]
+WorkingDirectory=/usr/local/sbin/logviewer/
+ExecStart=/usr/local/sbin/logviewer/logviewer
+User=root
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

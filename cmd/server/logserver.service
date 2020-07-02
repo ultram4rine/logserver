@@ -1,0 +1,12 @@
+[Unit]
+Description=gRPC microservice for logs from ClickHouse
+After=network-online.target
+
+[Service]
+WorkingDirectory=/usr/local/sbin/logserver/
+ExecStart=/usr/local/sbin/logserver/logserver
+User=root
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
