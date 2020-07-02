@@ -30,9 +30,11 @@
             single-line
             label="Switch name"
             v-model="sw"
-            :items="similarSwitches"
+            :items="similars"
             :search-input.sync="search"
             :loading="isLoading"
+            item-text="desc"
+            item-value="name"
             color="primary"
             hide-no-data
             placeholder="Start typing to Search"
@@ -324,10 +326,6 @@ export default {
         });
     },
 
-    getSimilarSwitches: function() {
-      axios.post("/get/similar", { name: this.sw });
-    },
-
     transformDates: function() {
       let unixFrom, unixTo;
 
@@ -378,22 +376,27 @@ export default {
     }
   },
 
+  computed: {
+    similars() {
+      return this.similarSwitches.map(sw => {
+        const desc = `${sw.name} - ${sw.ip}`;
+        return Object.assign({}, sw, { desc });
+      });
+    }
+  },
+
   watch: {
     search(val) {
-      // Items have already been loaded
-      if (this.switches.length > 0) return;
+      if (this.similarSwitches.length > 0) return;
 
       if (this.isLoading) return;
 
       this.isLoading = true;
 
-      // Lazily load input items
-      fetch("https://api.publicapis.org/entries")
-        .then(res => res.json())
-        .then(res => {
-          const { count, entries } = res;
-          this.count = count;
-          this.entries = entries;
+      axios
+        .post("/get/similar", { name: this.sw })
+        .then(resp => {
+          this.similarSwitches = resp.data.switches;
         })
         .catch(err => {
           console.log(err);
