@@ -314,12 +314,12 @@ export default {
 
       axios
         .post("/get/switch", {
-          name: this.sw,
+          name: this.sw.name,
           from: unixFrom,
           to: unixTo
         })
         .then(resp => {
-          this.SwitchLogs = resp.logs.data.logs;
+          this.SwitchLogs = resp.data.logs;
         })
         .catch(err => {
           console.log(err);
