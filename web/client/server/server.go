@@ -18,11 +18,8 @@ import (
 )
 
 var Conf struct {
-	CertPath      string `toml:"cert"`
-	GRPCServer    string `toml:"grpc_server"`
-	SessionKey    string `toml:"session_key"`
-	EncryptionKey string `toml:"encryption_key"`
-	LDAP          ldap   `toml:"ldap"`
+	App  app  `toml:"app"`
+	LDAP ldap `toml:"ldap"`
 }
 
 var Core struct {
@@ -35,18 +32,18 @@ func Init(confpath string) (err error) {
 		return fmt.Errorf("error decoding config file from %s", confpath)
 	}
 
-	if Conf.SessionKey == "" {
+	if Conf.App.SessionKey == "" {
 		return errors.New("Empty session key")
 	}
-	if Conf.EncryptionKey == "" {
+	if Conf.App.EncryptionKey == "" {
 		return errors.New("Empty encryption key")
 	}
 
-	Core.Store = sessions.NewCookieStore([]byte(Conf.SessionKey), []byte(Conf.EncryptionKey))
+	Core.Store = sessions.NewCookieStore([]byte(Conf.App.SessionKey), []byte(Conf.App.EncryptionKey))
 
-	b, err := ioutil.ReadFile(Conf.CertPath)
+	b, err := ioutil.ReadFile(Conf.App.CertPath)
 	if err != nil {
-		return fmt.Errorf("error reading certificate authority from %s: %s", Conf.CertPath, err)
+		return fmt.Errorf("error reading certificate authority from %s: %s", Conf.App.CertPath, err)
 	}
 
 	cp := x509.NewCertPool()
@@ -59,15 +56,23 @@ func Init(confpath string) (err error) {
 		RootCAs:            cp,
 	}
 
-	conn, err := grpc.Dial(Conf.GRPCServer, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)), grpc.WithTimeout(1*time.Second))
+	conn, err := grpc.Dial(Conf.App.GRPCServer, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)), grpc.WithTimeout(1*time.Second))
 	if err != nil {
-		return fmt.Errorf("cannot connect to %s: %s", Conf.GRPCServer, err)
+		return fmt.Errorf("cannot connect to %s: %s", Conf.App.GRPCServer, err)
 	}
 	defer conn.Close()
 
 	Core.GRPC = client.New(conn)
 
 	return nil
+}
+
+type app struct {
+	CertPath      string `toml:"cert_path"`
+	GRPCServer    string `toml:"grpc_server"`
+	ListenPort    string `toml:"listen_port"`
+	SessionKey    string `toml:"session_key"`
+	EncryptionKey string `toml:"encryption_key"`
 }
 
 type ldap struct {
