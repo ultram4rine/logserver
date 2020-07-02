@@ -29,9 +29,9 @@ func main() {
 	router.HandleFunc("/", handlers.RootHandler)
 	router.HandleFunc("/login", handlers.LoginHandler)
 
-	router.HandleFunc("/get/dhcp", handlers.GetDHCPLogsHandler).Methods("GET")
-	router.HandleFunc("/get/switch", handlers.GetSwitchLogsHandler).Methods("GET")
-	router.HandleFunc("/get/similar", handlers.GetSimilarSwitchesHandler).Methods("GET")
+	router.HandleFunc("/get/dhcp", handlers.GetDHCPLogsHandler).Methods("POST")
+	router.HandleFunc("/get/switch", handlers.GetSwitchLogsHandler).Methods("POST")
+	router.HandleFunc("/get/similar", handlers.GetSimilarSwitchesHandler).Methods("POST")
 
 	err = http.ListenAndServe(":"+server.Conf.App.ListenPort, router)
 	if err != nil {
