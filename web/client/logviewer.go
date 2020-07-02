@@ -23,6 +23,9 @@ func main() {
 
 	router := mux.NewRouter()
 
+	router.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.FileServer(http.Dir("./public/"))))
+	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./public/static/"))))
+
 	router.HandleFunc("/", handlers.RootHandler)
 	router.HandleFunc("/login", handlers.LoginHandler)
 
