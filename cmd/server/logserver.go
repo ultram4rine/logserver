@@ -25,35 +25,23 @@ var conf struct {
 	DB  db  `toml:"db"`
 }
 
-type app struct {
-	CertPath string `toml:"cert_path"`
-	KeyPath  string `toml:"key_path"`
-	Port     string `toml:"listen_port"`
-}
-
-type db struct {
-	Host string `toml:"host"`
-	Name string `toml:"name"`
-	User string `toml:"user"`
-	Pass string `toml:"pass"`
-}
-
 var confPath = kingpin.Flag("conf", "Path to config file.").Short('c').Default("logserver.conf.toml").String()
 
 func main() {
 	kingpin.Parse()
 
 	if _, err := toml.DecodeFile(*confPath, &conf); err != nil {
-		log.Fatalf("Error decoding config file from %s", *confPath)
+		log.Fatalf("Failed to decode config file from %s", *confPath)
 	}
 
 	ctx := context.Background()
 
 	db, err := sqlx.ConnectContext(ctx, "clickhouse", fmt.Sprintf("%s?username=%s&password=%s&database=%s", conf.DB.Host, conf.DB.User, conf.DB.Pass, conf.DB.Name))
 	if err != nil {
-		log.Fatalf("Error connecting to database: %s", err)
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
 	defer db.Close()
+	log.Info("Connected to ClickHouse database")
 
 	var (
 		svc     logserver.Service
@@ -85,7 +73,7 @@ func main() {
 		gRPCServer := grpc.NewServer(grpc.Creds(creds))
 		pb.RegisterLogServiceServer(gRPCServer, handler)
 
-		log.Printf("Started LogServer on %s port", conf.App.Port)
+		log.Infof("Started LogServer on %s port", conf.App.Port)
 
 		errChan <- gRPCServer.Serve(listener)
 	}()
@@ -93,8 +81,21 @@ func main() {
 	go func() {
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
-		errChan <- fmt.Errorf("%s", <-c)
+		errChan <- fmt.Errorf("%v", <-c)
 	}()
 
-	log.Println(<-errChan)
+	log.Info(<-errChan)
+}
+
+type app struct {
+	CertPath string `toml:"cert_path"`
+	KeyPath  string `toml:"key_path"`
+	Port     string `toml:"listen_port"`
+}
+
+type db struct {
+	Host string `toml:"host"`
+	Name string `toml:"name"`
+	User string `toml:"user"`
+	Pass string `toml:"pass"`
 }

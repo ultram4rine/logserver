@@ -29,21 +29,21 @@ var Core struct {
 
 func Init(confpath string) (err error) {
 	if _, err := toml.DecodeFile(confpath, &Conf); err != nil {
-		return fmt.Errorf("error decoding config file from %s", confpath)
+		return fmt.Errorf("failed to decode config file from %s", confpath)
 	}
 
 	if Conf.App.SessionKey == "" {
-		return errors.New("Empty session key")
+		return errors.New("empty session key")
 	}
 	if Conf.App.EncryptionKey == "" {
-		return errors.New("Empty encryption key")
+		return errors.New("empty encryption key")
 	}
 
 	Core.Store = sessions.NewCookieStore([]byte(Conf.App.SessionKey), []byte(Conf.App.EncryptionKey))
 
 	b, err := ioutil.ReadFile(Conf.App.CertPath)
 	if err != nil {
-		return fmt.Errorf("error reading certificate authority from %s: %s", Conf.App.CertPath, err)
+		return fmt.Errorf("failed to read certificate authority from %s: %s", Conf.App.CertPath, err)
 	}
 
 	cp := x509.NewCertPool()
@@ -58,7 +58,7 @@ func Init(confpath string) (err error) {
 
 	conn, err := grpc.Dial(Conf.App.GRPCServer, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)), grpc.WithTimeout(1*time.Second))
 	if err != nil {
-		return fmt.Errorf("cannot connect to %s: %s", Conf.App.GRPCServer, err)
+		return fmt.Errorf("failed to connect to gRPC server at %s: %s", Conf.App.GRPCServer, err)
 	}
 	defer conn.Close()
 

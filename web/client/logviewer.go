@@ -18,7 +18,7 @@ func main() {
 
 	err := server.Init(*confpath)
 	if err != nil {
-		log.Fatalf("failed to init logviewer: %v", err)
+		log.Fatalf("Failed to init LogViewer: %v", err)
 	}
 
 	router := mux.NewRouter()
@@ -32,6 +32,6 @@ func main() {
 
 	err = http.ListenAndServe(":"+server.Conf.App.ListenPort, router)
 	if err != nil {
-		log.Fatalf("failed to start logviewer: %v", err)
+		log.Fatalf("Failed to start LogViewer: %v", err)
 	}
 }
