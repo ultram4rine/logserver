@@ -16,7 +16,7 @@
           <v-spacer></v-spacer>
 
           <v-text-field
-            v-if="selection==='DHCP Logs'"
+            v-if="selection === 'DHCP Logs'"
             v-model="mac"
             hide-details
             single-line
@@ -25,7 +25,7 @@
           ></v-text-field>
 
           <v-autocomplete
-            v-else-if="selection==='Switch Logs'"
+            v-else-if="selection === 'Switch Logs'"
             hide-details
             single-line
             label="Switch name"
@@ -52,7 +52,7 @@
           <v-spacer></v-spacer>
 
           <v-btn
-            v-if="time==='Period'"
+            v-if="time === 'Period'"
             color="primary"
             v-on:click="periodForm=true"
           >Choose time period</v-btn>
@@ -60,11 +60,11 @@
           <v-spacer></v-spacer>
 
           <v-btn
-            v-if="selection==='DHCP Logs'"
+            v-if="selection === 'DHCP Logs'"
             color="primary"
             v-on:click="getDHCPLogs"
           >Show DHCP logs</v-btn>
-          <v-btn v-else-if="selection==='Switch Logs'" color="primary" v-on:click="getSwitchLogs">
+          <v-btn v-else-if="selection === 'Switch Logs'" color="primary" v-on:click="getSwitchLogs">
             Show Switch
             logs
           </v-btn>
@@ -75,14 +75,14 @@
     <v-main>
       <v-container fluid>
         <v-data-table
-          v-if="selection==='DHCP Logs'"
+          v-if="selection === 'DHCP Logs'"
           fixed-header
           :headers="DHCPHeaders"
           sort-by="timestamp"
           :items="DHCPLogs"
         ></v-data-table>
         <v-data-table
-          v-else-if="selection==='Switch Logs'"
+          v-else-if="selection === 'Switch Logs'"
           fixed-header
           :headers="switchHeaders"
           sort-by="timestamp"
@@ -266,7 +266,7 @@ export default {
         { text: "IP", align: "start", value: "ip" },
         {
           text: "Timestamp",
-          value: "timestamp"
+          value: "ts"
         },
         { text: "Message", value: "message" }
       ],
@@ -277,7 +277,7 @@ export default {
         { text: "Name", value: "name" },
         {
           text: "Timestamp",
-          value: "timestamp"
+          value: "ts"
         },
         { text: "Message", value: "message" }
       ],
@@ -291,11 +291,18 @@ export default {
         unixFrom = dates.unixFrom,
         unixTo = dates.unixTo;
 
-      axios.post("/get/dhcp", {
-        mac: this.mac,
-        from: unixFrom,
-        to: unixTo
-      });
+      axios
+        .post("/get/dhcp", {
+          mac: this.mac,
+          from: unixFrom,
+          to: unixTo
+        })
+        .then(resp => {
+          this.DHCPLogs = resp.data.logs;
+        })
+        .catch(err => {
+          console.log(err);
+        });
     },
 
     getSwitchLogs: function() {
@@ -303,11 +310,18 @@ export default {
         unixFrom = dates.unixFrom,
         unixTo = dates.unixTo;
 
-      axios.post("/get/switch", {
-        name: this.sw,
-        from: unixFrom,
-        to: unixTo
-      });
+      axios
+        .post("/get/switch", {
+          name: this.sw,
+          from: unixFrom,
+          to: unixTo
+        })
+        .then(resp => {
+          this.SwitchLogs = resp.logs.data.logs;
+        })
+        .catch(err => {
+          console.log(err);
+        });
     },
 
     getSimilarSwitches: function() {
