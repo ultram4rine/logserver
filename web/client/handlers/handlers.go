@@ -67,7 +67,7 @@ func GetDHCPLogsHandler(w http.ResponseWriter, r *http.Request) {
 
 	var ctx = context.Background()
 
-	logs, err := server.Core.GRPC.GetDHCPLogs(ctx, req.MAC, req.From, req.To)
+	logs, err := server.Core.Svc.GetDHCPLogs(ctx, req.MAC, req.From, req.To)
 	if err != nil {
 		errMsg := fmt.Sprintf("failed to get DHCP logs of %s mac: %v", req.MAC, err)
 
@@ -110,7 +110,7 @@ func GetSwitchLogsHandler(w http.ResponseWriter, r *http.Request) {
 
 	var ctx = context.Background()
 
-	logs, err := server.Core.GRPC.GetSwitchLogs(ctx, req.Name, req.From, req.To)
+	logs, err := server.Core.Svc.GetSwitchLogs(ctx, req.Name, req.From, req.To)
 	if err != nil {
 		errMsg := fmt.Sprintf("failed to get Switch logs of %s: %v", req.Name, err)
 
@@ -153,7 +153,7 @@ func GetSimilarSwitchesHandler(w http.ResponseWriter, r *http.Request) {
 
 	var ctx = context.Background()
 
-	switches, err := server.Core.GRPC.GetSimilarSwitches(ctx, req.Name)
+	switches, err := server.Core.Svc.GetSimilarSwitches(ctx, req.Name)
 	if err != nil {
 		errMsg := fmt.Sprintf("failed to get similar to %s switches: %v", req.Name, err)
 
