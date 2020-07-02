@@ -291,7 +291,11 @@ export default {
         unixFrom = dates.unixFrom,
         unixTo = dates.unixTo;
 
-      axios.get("/get/dhcp", { mac: this.mac, from: unixFrom, to: unixTo });
+      axios.post("/get/dhcp", {
+        mac: this.mac,
+        from: unixFrom,
+        to: unixTo
+      });
     },
 
     getSwitchLogs: function() {
@@ -299,11 +303,15 @@ export default {
         unixFrom = dates.unixFrom,
         unixTo = dates.unixTo;
 
-      axios.get("/get/switch", { name: this.sw, from: unixFrom, to: unixTo });
+      axios.post("/get/switch", {
+        name: this.sw,
+        from: unixFrom,
+        to: unixTo
+      });
     },
 
     getSimilarSwitches: function() {
-      axios.get("/get/similar", { name: this.sw });
+      axios.post("/get/similar", { name: this.sw });
     },
 
     transformDates: function() {

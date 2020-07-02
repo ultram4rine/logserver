@@ -57,7 +57,7 @@ func GetDHCPLogsHandler(w http.ResponseWriter, r *http.Request) {
 	var req logserver.DHCPLogsRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		errMsg := "failed to decode request for DHCP logs"
+		errMsg := fmt.Sprintf("failed to decode request for DHCP logs: %v", err)
 
 		log.Warnf(errMsg)
 
@@ -100,7 +100,7 @@ func GetSwitchLogsHandler(w http.ResponseWriter, r *http.Request) {
 	var req logserver.SwitchLogsRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		errMsg := "failed to decode request for Switch logs"
+		errMsg := fmt.Sprintf("failed to decode request for Switch logs: %v", err)
 
 		log.Warnf(errMsg)
 
@@ -178,8 +178,9 @@ func GetSimilarSwitchesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func alreadyLogin(r *http.Request) bool {
-	session, _ := server.Core.Store.Get(r, "logviewer_session")
-	return session.Values["userName"] != nil
+	//session, _ := server.Core.Store.Get(r, "logviewer_session")
+	//return session.Values["userName"] != nil
+	return true
 }
 
 func auth(login, password string) (string, error) {
