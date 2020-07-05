@@ -2,8 +2,12 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
+	"io/ioutil"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -13,6 +17,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 	_ "github.com/ClickHouse/clickhouse-go"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -57,7 +62,7 @@ func main() {
 	}
 
 	go func() {
-		listener, err := net.Listen("tcp", ":"+conf.App.Port)
+		listener, err := net.Listen("tcp", ":"+conf.App.GRPCPort)
 		if err != nil {
 			errChan <- err
 			return
@@ -73,9 +78,42 @@ func main() {
 		gRPCServer := grpc.NewServer(grpc.Creds(creds))
 		pb.RegisterLogServiceServer(gRPCServer, handler)
 
-		log.Infof("Started LogServer on %s port", conf.App.Port)
+		log.Infof("Started LogServer on %s port", conf.App.GRPCPort)
 
 		errChan <- gRPCServer.Serve(listener)
+	}()
+
+	go func() {
+		ctx := context.Background()
+		ctx, cancel := context.WithCancel(ctx)
+		defer cancel()
+
+		b, err := ioutil.ReadFile(conf.App.ClientCertPath)
+		if err != nil {
+			errChan <- err
+			return
+		}
+
+		cp := x509.NewCertPool()
+		if !cp.AppendCertsFromPEM(b) {
+			errChan <- err
+			return
+		}
+
+		tlsConfig := &tls.Config{
+			InsecureSkipVerify: false,
+			RootCAs:            cp,
+		}
+
+		mux := runtime.NewServeMux()
+		opts := []grpc.DialOption{grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig))}
+		err = pb.RegisterLogServiceHandlerFromEndpoint(ctx, mux, fmt.Sprintf("localhost:%s", conf.App.GRPCPort), opts)
+		if err != nil {
+			errChan <- err
+			return
+		}
+
+		http.ListenAndServe(":"+conf.App.HTTPPort, mux)
 	}()
 
 	go func() {
@@ -88,9 +126,11 @@ func main() {
 }
 
 type app struct {
-	CertPath string `toml:"cert_path"`
-	KeyPath  string `toml:"key_path"`
-	Port     string `toml:"listen_port"`
+	CertPath       string `toml:"cert_path"`
+	KeyPath        string `toml:"key_path"`
+	GRPCPort       string `toml:"grpc_port"`
+	HTTPPort       string `toml:"http_port"`
+	ClientCertPath string `toml:"client_cert_path"`
 }
 
 type db struct {
