@@ -294,7 +294,7 @@ export default {
         unixTo = dates.unixTo;
 
       axios
-        .post("/get/dhcp", {
+        .post("/api/dhcp", {
           mac: this.mac,
           from: unixFrom,
           to: unixTo
@@ -313,7 +313,7 @@ export default {
         unixTo = dates.unixTo;
 
       axios
-        .post("/get/switch", {
+        .post("/api/switch", {
           name: this.sw.name,
           from: unixFrom,
           to: unixTo
@@ -394,7 +394,7 @@ export default {
       this.isLoading = true;
 
       axios
-        .post("/get/similar", { name: this.sw })
+        .post("/api/similar", { name: this.sw })
         .then(resp => {
           this.similarSwitches = resp.data.switches;
         })
