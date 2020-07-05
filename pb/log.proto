@@ -2,14 +2,28 @@ syntax = "proto3";
 
 package pb;
 
+import "google/api/annotations.proto";
+
 option go_package = ".;pb";
 
 service logService {
     rpc GetDHCPLogs (DHCPLogsRequest) returns (DHCPLogsResponse) {
+        option (google.api.http) = {
+        post: "/api/dhcp"
+        body: "*"
+      };
     }
     rpc GetSwitchLogs (SwitchLogsRequest) returns (SwitchLogsResponse) {
+        option (google.api.http) = {
+        post: "/api/switches"
+        body: "*"
+      };
     }
     rpc GetSimilarSwitches (SimilarSwitchesRequest) returns (SimilarSwitchesResponse) {
+        option (google.api.http) = {
+        post: "/api/similar"
+        body: "*"
+      };
     }
 }
 

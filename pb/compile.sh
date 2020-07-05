@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
-protoc -I . log.proto --go_out=plugins=grpc:.
+protoc -I. --go_out=plugins=grpc:. log.proto 
+protoc -I. --grpc-gateway_out=logtostderr=true:. log.proto
