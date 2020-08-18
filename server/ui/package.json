@@ -16,14 +16,14 @@
     "core-js": "^3.6.5",
     "vue": "^2.6.11",
     "vue-router": "^3.4.3",
-    "vuetify": "^2.3.8",
+    "vuetify": "^2.3.9",
     "vuex": "^3.5.1"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^4.5.3",
-    "@vue/cli-plugin-router": "^4.5.3",
-    "@vue/cli-plugin-vuex": "^4.5.3",
-    "@vue/cli-service": "^4.5.3",
+    "@vue/cli-plugin-babel": "^4.5.4",
+    "@vue/cli-plugin-router": "^4.5.4",
+    "@vue/cli-plugin-vuex": "^4.5.4",
+    "@vue/cli-service": "^4.5.4",
     "clean-webpack-plugin": "^3.0.0",
     "vue-cli-plugin-vuetify": "^2.0.7",
     "vue-template-compiler": "^2.6.11"
