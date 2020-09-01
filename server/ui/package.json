@@ -10,13 +10,13 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.10.4",
+    "@babel/polyfill": "^7.11.5",
     "@mdi/js": "^5.5.55",
-    "axios": "^0.19.2",
+    "axios": "^0.20.0",
     "core-js": "^3.6.5",
-    "vue": "^2.6.11",
+    "vue": "^2.6.12",
     "vue-router": "^3.4.3",
-    "vuetify": "^2.3.9",
+    "vuetify": "^2.3.10",
     "vuex": "^3.5.1"
   },
   "devDependencies": {
@@ -26,6 +26,6 @@
     "@vue/cli-service": "^4.5.4",
     "clean-webpack-plugin": "^3.0.0",
     "vue-cli-plugin-vuetify": "^2.0.7",
-    "vue-template-compiler": "^2.6.11"
+    "vue-template-compiler": "^2.6.12"
   }
 }
