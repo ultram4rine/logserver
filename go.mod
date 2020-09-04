@@ -1,24 +1,18 @@
 module git.sgu.ru/ultramarine/logserver
 
-go 1.14
+go 1.15
 
 require (
 	github.com/BurntSushi/toml v0.3.1
-	github.com/ClickHouse/clickhouse-go v1.4.1
-	github.com/go-kit/kit v0.10.0
-	github.com/go-ldap/ldap v3.0.3+incompatible
+	github.com/ClickHouse/clickhouse-go v1.4.3
+	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
+	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d // indirect
 	github.com/golang/protobuf v1.4.2
-	github.com/gorilla/mux v1.7.4
-	github.com/gorilla/sessions v1.2.0
-	github.com/grpc-ecosystem/grpc-gateway v1.14.6
+	github.com/grpc-ecosystem/grpc-gateway v1.14.8
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/sirupsen/logrus v1.6.0
-	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
-	golang.org/x/sys v0.0.0-20200625212154-ddb9806d33ae // indirect
-	golang.org/x/text v0.3.3 // indirect
-	google.golang.org/genproto v0.0.0-20200707001353-8e8330bf89df
-	google.golang.org/grpc v1.30.0
+	google.golang.org/genproto v0.0.0-20200904004341-0bd0a958aa1d
+	google.golang.org/grpc v1.31.1
 	google.golang.org/protobuf v1.25.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
-	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 )
