@@ -1,0 +1,304 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "log.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/dhcp": {
+      "post": {
+        "operationId": "logService_GetDHCPLogs",
+        "responses": {
+          "200": {
+            "description": "A successful response.(streaming responses)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/definitions/pbDHCPLogsResponse"
+                },
+                "error": {
+                  "$ref": "#/definitions/runtimeStreamError"
+                }
+              },
+              "title": "Stream result of pbDHCPLogsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbDHCPLogsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "logService"
+        ]
+      }
+    },
+    "/api/similar": {
+      "post": {
+        "operationId": "logService_GetSimilarSwitches",
+        "responses": {
+          "200": {
+            "description": "A successful response.(streaming responses)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/definitions/pbSimilarSwitchesResponse"
+                },
+                "error": {
+                  "$ref": "#/definitions/runtimeStreamError"
+                }
+              },
+              "title": "Stream result of pbSimilarSwitchesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbSimilarSwitchesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "logService"
+        ]
+      }
+    },
+    "/api/switches": {
+      "post": {
+        "operationId": "logService_GetSwitchLogs",
+        "responses": {
+          "200": {
+            "description": "A successful response.(streaming responses)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/definitions/pbSwitchLogsResponse"
+                },
+                "error": {
+                  "$ref": "#/definitions/runtimeStreamError"
+                }
+              },
+              "title": "Stream result of pbSwitchLogsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbSwitchLogsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "logService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "pbDHCPLog": {
+      "type": "object",
+      "properties": {
+        "ip": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "pbDHCPLogsRequest": {
+      "type": "object",
+      "properties": {
+        "MAC": {
+          "type": "string"
+        },
+        "from": {
+          "type": "string",
+          "format": "int64"
+        },
+        "to": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "pbDHCPLogsResponse": {
+      "type": "object",
+      "properties": {
+        "logs": {
+          "$ref": "#/definitions/pbDHCPLog"
+        }
+      }
+    },
+    "pbSimilarSwitch": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "IP": {
+          "type": "string"
+        }
+      }
+    },
+    "pbSimilarSwitchesRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "pbSimilarSwitchesResponse": {
+      "type": "object",
+      "properties": {
+        "switches": {
+          "$ref": "#/definitions/pbSimilarSwitch"
+        }
+      }
+    },
+    "pbSwitchLog": {
+      "type": "object",
+      "properties": {
+        "ip": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "ts": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "pbSwitchLogsRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "from": {
+          "type": "string",
+          "format": "int64"
+        },
+        "to": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "pbSwitchLogsResponse": {
+      "type": "object",
+      "properties": {
+        "logs": {
+          "$ref": "#/definitions/pbSwitchLog"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "runtimeStreamError": {
+      "type": "object",
+      "properties": {
+        "grpc_code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "http_code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "http_status": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}
