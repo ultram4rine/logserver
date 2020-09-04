@@ -7,19 +7,19 @@ import "google/api/annotations.proto";
 option go_package = ".;pb";
 
 service logService {
-    rpc GetDHCPLogs (DHCPLogsRequest) returns (stream DHCPLogsResponse) {
+    rpc GetDHCPLogs (DHCPLogsRequest) returns (DHCPLogsResponse) {
         option (google.api.http) = {
         post: "/api/dhcp"
         body: "*"
       };
     }
-    rpc GetSwitchLogs (SwitchLogsRequest) returns (stream SwitchLogsResponse) {
+    rpc GetSwitchLogs (SwitchLogsRequest) returns (SwitchLogsResponse) {
         option (google.api.http) = {
         post: "/api/switches"
         body: "*"
       };
     }
-    rpc GetSimilarSwitches (SimilarSwitchesRequest) returns (stream SimilarSwitchesResponse) {
+    rpc GetSimilarSwitches (SimilarSwitchesRequest) returns (SimilarSwitchesResponse) {
         option (google.api.http) = {
         post: "/api/similar"
         body: "*"
@@ -40,7 +40,7 @@ message DHCPLog {
 }
 
 message DHCPLogsResponse {
-    DHCPLog logs = 1;
+    repeated DHCPLog logs = 1;
 }
 
 message SwitchLogsRequest {
@@ -57,7 +57,7 @@ message SwitchLog {
 }
 
 message SwitchLogsResponse {
-    SwitchLog logs = 1;
+    repeated SwitchLog logs = 1;
 }
 
 message SimilarSwitchesRequest {
@@ -70,5 +70,5 @@ message SimilarSwitch {
 }
 
 message SimilarSwitchesResponse {
-    SimilarSwitch switches = 1;
+    repeated SimilarSwitch switches = 1;
 }

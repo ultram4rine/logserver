@@ -16,18 +16,9 @@
         "operationId": "logService_GetDHCPLogs",
         "responses": {
           "200": {
-            "description": "A successful response.(streaming responses)",
+            "description": "A successful response.",
             "schema": {
-              "type": "object",
-              "properties": {
-                "result": {
-                  "$ref": "#/definitions/pbDHCPLogsResponse"
-                },
-                "error": {
-                  "$ref": "#/definitions/runtimeStreamError"
-                }
-              },
-              "title": "Stream result of pbDHCPLogsResponse"
+              "$ref": "#/definitions/pbDHCPLogsResponse"
             }
           },
           "default": {
@@ -57,18 +48,9 @@
         "operationId": "logService_GetSimilarSwitches",
         "responses": {
           "200": {
-            "description": "A successful response.(streaming responses)",
+            "description": "A successful response.",
             "schema": {
-              "type": "object",
-              "properties": {
-                "result": {
-                  "$ref": "#/definitions/pbSimilarSwitchesResponse"
-                },
-                "error": {
-                  "$ref": "#/definitions/runtimeStreamError"
-                }
-              },
-              "title": "Stream result of pbSimilarSwitchesResponse"
+              "$ref": "#/definitions/pbSimilarSwitchesResponse"
             }
           },
           "default": {
@@ -98,18 +80,9 @@
         "operationId": "logService_GetSwitchLogs",
         "responses": {
           "200": {
-            "description": "A successful response.(streaming responses)",
+            "description": "A successful response.",
             "schema": {
-              "type": "object",
-              "properties": {
-                "result": {
-                  "$ref": "#/definitions/pbSwitchLogsResponse"
-                },
-                "error": {
-                  "$ref": "#/definitions/runtimeStreamError"
-                }
-              },
-              "title": "Stream result of pbSwitchLogsResponse"
+              "$ref": "#/definitions/pbSwitchLogsResponse"
             }
           },
           "default": {
@@ -170,7 +143,10 @@
       "type": "object",
       "properties": {
         "logs": {
-          "$ref": "#/definitions/pbDHCPLog"
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/pbDHCPLog"
+          }
         }
       }
     },
@@ -197,7 +173,10 @@
       "type": "object",
       "properties": {
         "switches": {
-          "$ref": "#/definitions/pbSimilarSwitch"
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/pbSimilarSwitch"
+          }
         }
       }
     },
@@ -238,7 +217,10 @@
       "type": "object",
       "properties": {
         "logs": {
-          "$ref": "#/definitions/pbSwitchLog"
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/pbSwitchLog"
+          }
         }
       }
     },
@@ -265,31 +247,6 @@
           "format": "int32"
         },
         "message": {
-          "type": "string"
-        },
-        "details": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/protobufAny"
-          }
-        }
-      }
-    },
-    "runtimeStreamError": {
-      "type": "object",
-      "properties": {
-        "grpc_code": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "http_code": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "message": {
-          "type": "string"
-        },
-        "http_status": {
           "type": "string"
         },
         "details": {
