@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net"
@@ -12,8 +13,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"git.sgu.ru/ultramarine/logserver"
 	"git.sgu.ru/ultramarine/logserver/pb"
+	"git.sgu.ru/ultramarine/logserver/service"
 
 	"github.com/BurntSushi/toml"
 	_ "github.com/ClickHouse/clickhouse-go"
@@ -25,12 +26,12 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
+var confPath = kingpin.Flag("conf", "Path to config file.").Short('c').Default("logserver.conf.toml").String()
+
 var conf struct {
 	App app `toml:"app"`
 	DB  db  `toml:"db"`
 }
-
-var confPath = kingpin.Flag("conf", "Path to config file.").Short('c').Default("logserver.conf.toml").String()
 
 func main() {
 	kingpin.Parse()
@@ -49,20 +50,12 @@ func main() {
 	log.Info("Connected to ClickHouse database")
 
 	var (
-		svc     logserver.Service
+		svc     = service.LogService{DB: db}
 		errChan = make(chan error, 1000)
 	)
 
-	svc = logserver.LogService{DB: db}
-
-	endpoints := logserver.Endpoints{
-		DHCPEndpoint:    logserver.MakeDHCPEndpoint(svc),
-		SwitchEndpoint:  logserver.MakeSwitchEndpoint(svc),
-		SimilarEndpoint: logserver.MakeSimilarEndpoint(svc),
-	}
-
 	go func() {
-		listener, err := net.Listen("tcp", ":"+conf.App.GRPCPort)
+		listener, err := net.Listen("tcp", ":"+conf.App.ListenPort)
 		if err != nil {
 			errChan <- err
 			return
@@ -74,11 +67,10 @@ func main() {
 			return
 		}
 
-		handler := logserver.NewGRPCServer(ctx, endpoints)
 		gRPCServer := grpc.NewServer(grpc.Creds(creds))
-		pb.RegisterLogServiceServer(gRPCServer, handler)
+		pb.RegisterLogServiceServer(gRPCServer, svc)
 
-		log.Infof("Started LogServer on %s port", conf.App.GRPCPort)
+		log.Infof("Started LogServer on %s port", conf.App.ListenPort)
 
 		errChan <- gRPCServer.Serve(listener)
 	}()
@@ -96,7 +88,7 @@ func main() {
 
 		cp := x509.NewCertPool()
 		if !cp.AppendCertsFromPEM(b) {
-			errChan <- err
+			errChan <- errors.New("Failed to append certificates")
 			return
 		}
 
@@ -107,13 +99,13 @@ func main() {
 
 		mux := runtime.NewServeMux()
 		opts := []grpc.DialOption{grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig))}
-		err = pb.RegisterLogServiceHandlerFromEndpoint(ctx, mux, fmt.Sprintf("localhost:%s", conf.App.GRPCPort), opts)
+		err = pb.RegisterLogServiceHandlerFromEndpoint(ctx, mux, fmt.Sprintf("localhost:%s", conf.App.ListenPort), opts)
 		if err != nil {
 			errChan <- err
 			return
 		}
 
-		http.ListenAndServe(":"+conf.App.HTTPPort, mux)
+		http.ListenAndServe(":"+conf.App.GatewayPort, mux)
 	}()
 
 	go func() {
@@ -128,9 +120,9 @@ func main() {
 type app struct {
 	CertPath       string `toml:"cert_path"`
 	KeyPath        string `toml:"key_path"`
-	GRPCPort       string `toml:"grpc_port"`
-	HTTPPort       string `toml:"http_port"`
 	ClientCertPath string `toml:"client_cert_path"`
+	ListenPort     string `toml:"listen_port"`
+	GatewayPort    string `toml:"gateway_port"`
 }
 
 type db struct {
