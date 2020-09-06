@@ -58,8 +58,8 @@ export default {
       mdiLogin: mdiLogin,
       show: false,
       username: "",
-      password: ""
+      password: "",
     };
-  }
+  },
 };
 </script>
