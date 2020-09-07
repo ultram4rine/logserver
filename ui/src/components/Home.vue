@@ -3,7 +3,7 @@
     <v-card flat>
       <v-toolbar color="primary" dark extended flat></v-toolbar>
 
-      <v-card class="mx-auto" max-width="1300" style="margin-top: -64px;">
+      <v-card class="mx-auto" max-width="1300" style="margin-top: -64px">
         <v-toolbar>
           <v-select
             v-model="selection"
@@ -56,8 +56,9 @@
           <v-btn
             v-if="time === 'Period'"
             color="primary"
-            v-on:click="periodForm=true"
-          >Choose time period</v-btn>
+            v-on:click="periodForm = true"
+            >Choose time period</v-btn
+          >
 
           <v-spacer></v-spacer>
 
@@ -65,10 +66,14 @@
             v-if="selection === 'DHCP Logs'"
             color="primary"
             v-on:click="getDHCPLogs"
-          >Show DHCP logs</v-btn>
-          <v-btn v-else-if="selection === 'Switch Logs'" color="primary" v-on:click="getSwitchLogs">
-            Show Switch
-            logs
+            >Show DHCP logs</v-btn
+          >
+          <v-btn
+            v-else-if="selection === 'Switch Logs'"
+            color="primary"
+            v-on:click="getSwitchLogs"
+          >
+            Show Switch logs
           </v-btn>
         </v-toolbar>
       </v-card>
@@ -98,7 +103,14 @@
         <v-toolbar>
           <v-toolbar-title>Choose period of time for logs</v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-btn icon @click="periodForm = false; fromTime = ''; toTime = ''">
+          <v-btn
+            icon
+            @click="
+              periodForm = false;
+              fromTime = '';
+              toTime = '';
+            "
+          >
             <v-icon>{{ mdiClose }}</v-icon>
           </v-btn>
         </v-toolbar>
@@ -116,12 +128,24 @@
                   min-width="290px"
                 >
                   <template v-slot:activator="{ on }">
-                    <v-text-field v-model="fromDate" label="From this date" readonly v-on="on"></v-text-field>
+                    <v-text-field
+                      v-model="fromDate"
+                      label="From this date"
+                      readonly
+                      v-on="on"
+                    ></v-text-field>
                   </template>
                   <v-date-picker v-model="fromDate" no-title scrollable>
                     <v-spacer></v-spacer>
-                    <v-btn text color="primary" @click="menuFromDate = false">Cancel</v-btn>
-                    <v-btn text color="primary" @click="$refs.menuFD.save(fromDate)">OK</v-btn>
+                    <v-btn text color="primary" @click="menuFromDate = false"
+                      >Cancel</v-btn
+                    >
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="$refs.menuFD.save(fromDate)"
+                      >OK</v-btn
+                    >
                   </v-date-picker>
                 </v-menu>
               </v-col>
@@ -139,7 +163,12 @@
                   min-width="290px"
                 >
                   <template v-slot:activator="{ on }">
-                    <v-text-field v-model="fromTime" label="From this time" readonly v-on="on"></v-text-field>
+                    <v-text-field
+                      v-model="fromTime"
+                      label="From this time"
+                      readonly
+                      v-on="on"
+                    ></v-text-field>
                   </template>
                   <v-time-picker
                     v-if="menuFromTime"
@@ -165,12 +194,24 @@
                   min-width="290px"
                 >
                   <template v-slot:activator="{ on }">
-                    <v-text-field v-model="toDate" label="To this date" readonly v-on="on"></v-text-field>
+                    <v-text-field
+                      v-model="toDate"
+                      label="To this date"
+                      readonly
+                      v-on="on"
+                    ></v-text-field>
                   </template>
                   <v-date-picker v-model="toDate" no-title scrollable>
                     <v-spacer></v-spacer>
-                    <v-btn text color="primary" @click="menuToDate = false">Cancel</v-btn>
-                    <v-btn text color="primary" @click="$refs.menuTD.save(toDate)">OK</v-btn>
+                    <v-btn text color="primary" @click="menuToDate = false"
+                      >Cancel</v-btn
+                    >
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="$refs.menuTD.save(toDate)"
+                      >OK</v-btn
+                    >
                   </v-date-picker>
                 </v-menu>
               </v-col>
@@ -188,7 +229,12 @@
                   min-width="290px"
                 >
                   <template v-slot:activator="{ on }">
-                    <v-text-field v-model="toTime" label="To this time" readonly v-on="on"></v-text-field>
+                    <v-text-field
+                      v-model="toTime"
+                      label="To this time"
+                      readonly
+                      v-on="on"
+                    ></v-text-field>
                   </template>
                   <v-time-picker
                     v-if="menuToTime"
@@ -206,7 +252,7 @@
         <v-divider></v-divider>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary" @click="periodForm=false">Ok</v-btn>
+          <v-btn color="primary" @click="periodForm = false">Ok</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -250,7 +296,7 @@ export default {
         "Last 12 hours",
         "Last day",
         "Last 3 days",
-        "Last week"
+        "Last week",
       ],
       period: false,
       periodForm: false,
@@ -268,9 +314,9 @@ export default {
         { text: "IP", align: "start", value: "ip" },
         {
           text: "Timestamp",
-          value: "ts"
+          value: "ts",
         },
-        { text: "Message", value: "message" }
+        { text: "Message", value: "message" },
       ],
       DHCPLogs: [],
 
@@ -279,16 +325,16 @@ export default {
         { text: "Name", value: "name" },
         {
           text: "Timestamp",
-          value: "ts"
+          value: "ts",
         },
-        { text: "Message", value: "message" }
+        { text: "Message", value: "message" },
       ],
-      switchLogs: []
+      switchLogs: [],
     };
   },
 
   methods: {
-    getDHCPLogs: function() {
+    getDHCPLogs: function () {
       let dates = this.transformDates(),
         unixFrom = dates.unixFrom,
         unixTo = dates.unixTo;
@@ -297,17 +343,17 @@ export default {
         .post("/api/dhcp", {
           mac: this.mac,
           from: unixFrom,
-          to: unixTo
+          to: unixTo,
         })
-        .then(resp => {
+        .then((resp) => {
           this.DHCPLogs = resp.data.logs;
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err);
         });
     },
 
-    getSwitchLogs: function() {
+    getSwitchLogs: function () {
       let dates = this.transformDates(),
         unixFrom = dates.unixFrom,
         unixTo = dates.unixTo;
@@ -316,17 +362,17 @@ export default {
         .post("/api/switch", {
           name: this.sw.name,
           from: unixFrom,
-          to: unixTo
+          to: unixTo,
         })
-        .then(resp => {
+        .then((resp) => {
           this.SwitchLogs = resp.data.logs;
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err);
         });
     },
 
-    transformDates: function() {
+    transformDates: function () {
       let unixFrom, unixTo;
 
       if (this.time === "Period") {
@@ -373,16 +419,16 @@ export default {
       }
 
       return { unixFrom, unixTo };
-    }
+    },
   },
 
   computed: {
     similars() {
-      return this.similarSwitches.map(sw => {
+      return this.similarSwitches.map((sw) => {
         const desc = `${sw.name} - ${sw.ip}`;
         return Object.assign({}, sw, { desc });
       });
-    }
+    },
   },
 
   watch: {
@@ -395,14 +441,14 @@ export default {
 
       axios
         .post("/api/similar", { name: this.sw })
-        .then(resp => {
+        .then((resp) => {
           this.similarSwitches = resp.data.switches;
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err);
         })
         .finally(() => (this.isLoading = false));
-    }
-  }
+    },
+  },
 };
 </script>
