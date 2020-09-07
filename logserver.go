@@ -18,6 +18,8 @@ import (
 
 	"github.com/BurntSushi/toml"
 	_ "github.com/ClickHouse/clickhouse-go"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/grpc-ecosystem/go-grpc-middleware/grpc_auth"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
@@ -67,7 +69,9 @@ func main() {
 			return
 		}
 
-		gRPCServer := grpc.NewServer(grpc.Creds(creds))
+		gRPCServer := grpc.NewServer(grpc.Creds(creds), grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+			grpc_auth.UnaryServerInterceptor(func(ctx context.Context) (context.Context, error) { return nil, nil }),
+		)))
 		pb.RegisterLogServiceServer(gRPCServer, svc)
 
 		log.Infof("Started LogServer on %s port", conf.App.ListenPort)
