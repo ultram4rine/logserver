@@ -7,6 +7,8 @@ require (
 	github.com/ClickHouse/clickhouse-go v1.4.3
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/go-ldap/ldap/v3 v3.2.3
 	github.com/golang/protobuf v1.4.2
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.1
 	github.com/grpc-ecosystem/grpc-gateway v1.14.8
