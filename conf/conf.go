@@ -27,6 +27,7 @@ type app struct {
 	ClientCertPath string `toml:"client_cert_path"`
 	ListenPort     string `toml:"listen_port"`
 	GatewayPort    string `toml:"gateway_port"`
+	JWTKey         string `toml:"jwt_key"`
 }
 
 type db struct {
