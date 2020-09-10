@@ -13,10 +13,11 @@ import (
 	"os/signal"
 	"syscall"
 
+	"git.sgu.ru/ultramarine/logserver/auth"
+	"git.sgu.ru/ultramarine/logserver/conf"
 	"git.sgu.ru/ultramarine/logserver/pb"
 	"git.sgu.ru/ultramarine/logserver/service"
 
-	"github.com/BurntSushi/toml"
 	_ "github.com/ClickHouse/clickhouse-go"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
@@ -30,21 +31,16 @@ import (
 
 var confPath = kingpin.Flag("conf", "Path to config file.").Short('c').Default("logserver.conf.toml").String()
 
-var conf struct {
-	App app `toml:"app"`
-	DB  db  `toml:"db"`
-}
-
 func main() {
 	kingpin.Parse()
 
-	if _, err := toml.DecodeFile(*confPath, &conf); err != nil {
-		log.Fatalf("Failed to decode config file from %s", *confPath)
+	if err := conf.ParseConfig(*confPath); err != nil {
+		log.Fatal(err)
 	}
 
 	ctx := context.Background()
 
-	db, err := sqlx.ConnectContext(ctx, "clickhouse", fmt.Sprintf("%s?username=%s&password=%s&database=%s", conf.DB.Host, conf.DB.User, conf.DB.Pass, conf.DB.Name))
+	db, err := sqlx.ConnectContext(ctx, "clickhouse", fmt.Sprintf("%s?username=%s&password=%s&database=%s", conf.Conf.DB.Host, conf.Conf.DB.User, conf.Conf.DB.Pass, conf.Conf.DB.Name))
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
@@ -57,24 +53,24 @@ func main() {
 	)
 
 	go func() {
-		listener, err := net.Listen("tcp", ":"+conf.App.ListenPort)
+		listener, err := net.Listen("tcp", ":"+conf.Conf.App.ListenPort)
 		if err != nil {
 			errChan <- err
 			return
 		}
 
-		creds, err := credentials.NewServerTLSFromFile(conf.App.CertPath, conf.App.KeyPath)
+		creds, err := credentials.NewServerTLSFromFile(conf.Conf.App.CertPath, conf.Conf.App.KeyPath)
 		if err != nil {
 			errChan <- err
 			return
 		}
 
 		gRPCServer := grpc.NewServer(grpc.Creds(creds), grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			grpc_auth.UnaryServerInterceptor(func(ctx context.Context) (context.Context, error) { return nil, nil }),
+			grpc_auth.UnaryServerInterceptor(auth.LDAPAuthFunc),
 		)))
 		pb.RegisterLogServiceServer(gRPCServer, svc)
 
-		log.Infof("Started LogServer on %s port", conf.App.ListenPort)
+		log.Infof("Started LogServer on %s port", conf.Conf.App.ListenPort)
 
 		errChan <- gRPCServer.Serve(listener)
 	}()
@@ -84,7 +80,7 @@ func main() {
 		ctx, cancel := context.WithCancel(ctx)
 		defer cancel()
 
-		b, err := ioutil.ReadFile(conf.App.ClientCertPath)
+		b, err := ioutil.ReadFile(conf.Conf.App.ClientCertPath)
 		if err != nil {
 			errChan <- err
 			return
@@ -103,13 +99,13 @@ func main() {
 
 		mux := runtime.NewServeMux()
 		opts := []grpc.DialOption{grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig))}
-		err = pb.RegisterLogServiceHandlerFromEndpoint(ctx, mux, fmt.Sprintf("localhost:%s", conf.App.ListenPort), opts)
+		err = pb.RegisterLogServiceHandlerFromEndpoint(ctx, mux, fmt.Sprintf("localhost:%s", conf.Conf.App.ListenPort), opts)
 		if err != nil {
 			errChan <- err
 			return
 		}
 
-		http.ListenAndServe(":"+conf.App.GatewayPort, mux)
+		http.ListenAndServe(":"+conf.Conf.App.GatewayPort, mux)
 	}()
 
 	go func() {
@@ -119,19 +115,4 @@ func main() {
 	}()
 
 	log.Info(<-errChan)
-}
-
-type app struct {
-	CertPath       string `toml:"cert_path"`
-	KeyPath        string `toml:"key_path"`
-	ClientCertPath string `toml:"client_cert_path"`
-	ListenPort     string `toml:"listen_port"`
-	GatewayPort    string `toml:"gateway_port"`
-}
-
-type db struct {
-	Host string `toml:"host"`
-	Name string `toml:"name"`
-	User string `toml:"user"`
-	Pass string `toml:"pass"`
 }
