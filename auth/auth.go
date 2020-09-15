@@ -17,12 +17,24 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func parseToken(token string) (struct{}, error) {
-	return struct{}{}, nil
+type user struct {
+	Username string
 }
 
-func userClaimFromToken(struct{}) string {
-	return "foobar"
+func parseToken(tokenString string) (user, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+
+		return []byte(conf.Conf.App.JWTKey), nil
+	})
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return user{Username: fmt.Sprintf("%v", claims["username"])}, nil
+	}
+
+	return user{}, err
 }
 
 // LDAPAuthFunc is used by a middleware to authenticate requests.
@@ -37,39 +49,41 @@ func LDAPAuthFunc(ctx context.Context) (context.Context, error) {
 		return nil, status.Errorf(codes.Unauthenticated, "invalid auth token: %v", err)
 	}
 
-	grpc_ctxtags.Extract(ctx).Set("auth.sub", userClaimFromToken(tokenInfo))
+	grpc_ctxtags.Extract(ctx).Set("auth.sub", tokenInfo.Username)
 
-	// WARNING: in production define your own type to avoid context collisions
-	newCtx := context.WithValue(ctx, "tokenInfo", tokenInfo)
+	type ctxKey string
+	k := ctxKey("tokenInfo")
+	newCtx := context.WithValue(ctx, k, tokenInfo)
 
 	return newCtx, nil
 }
 
 // Handler handles auth endpoint.
 func Handler(w http.ResponseWriter, r *http.Request) {
-	var user struct {
+	var loginInfo struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&loginInfo); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := authenticate(user.Username, user.Password); err != nil {
+	if err := authenticate(loginInfo.Username, loginInfo.Password); err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
-	} else {
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"username": user.Username})
-		tokenString, err := token.SignedString(conf.Conf.App.JWTKey)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		w.Write([]byte(tokenString))
 	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"username": loginInfo.Username})
+	tokenString, err := token.SignedString(conf.Conf.App.JWTKey)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Write([]byte(tokenString))
+
 }
 
 func authenticate(login, password string) error {
