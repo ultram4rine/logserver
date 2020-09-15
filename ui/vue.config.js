@@ -2,7 +2,7 @@ const path = require("path");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
 module.exports = {
-  outputDir: path.resolve(__dirname, "../public"),
+  outputDir: path.resolve(__dirname, "build"),
   assetsDir: process.env.NODE_ENV === "production" ? "static" : "",
 
   devServer: {
