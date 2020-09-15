@@ -11,7 +11,9 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
+	"time"
 
 	"git.sgu.ru/ultramarine/logserver/auth"
 	"git.sgu.ru/ultramarine/logserver/conf"
@@ -43,7 +45,7 @@ func main() {
 
 	db, err := sqlx.ConnectContext(ctx, "clickhouse", fmt.Sprintf("%s?username=%s&password=%s&database=%s", conf.Conf.DB.Host, conf.Conf.DB.User, conf.Conf.DB.Pass, conf.Conf.DB.Name))
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+		log.Warnf("Failed to connect to database: %v", err)
 	}
 	defer db.Close()
 	log.Info("Connected to ClickHouse database")
@@ -98,18 +100,29 @@ func main() {
 			RootCAs:            cp,
 		}
 
-		mu := runtime.NewServeMux()
+		gwmux := runtime.NewServeMux()
 		opts := []grpc.DialOption{grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig))}
-		err = pb.RegisterLogServiceHandlerFromEndpoint(ctx, mu, fmt.Sprintf("localhost:%s", conf.Conf.App.ListenPort), opts)
+		err = pb.RegisterLogServiceHandlerFromEndpoint(ctx, gwmux, fmt.Sprintf("localhost:%s", conf.Conf.App.ListenPort), opts)
 		if err != nil {
 			errChan <- err
 			return
 		}
 
+		spa := spaHandler{staticPath: "ui/build", indexPath: "index.html"}
+
 		router := mux.NewRouter()
 		router.HandleFunc("/api/auth", auth.Handler)
+		router.PathPrefix("/api").Handler(gwmux)
+		router.PathPrefix("/").Handler(spa)
 
-		http.ListenAndServe(":"+conf.Conf.App.GatewayPort, mu)
+		srv := &http.Server{
+			Handler:      router,
+			Addr:         ":" + conf.Conf.App.GatewayPort,
+			WriteTimeout: 15 * time.Second,
+			ReadTimeout:  15 * time.Second,
+		}
+
+		log.Fatal(srv.ListenAndServe())
 	}()
 
 	go func() {
@@ -119,4 +132,30 @@ func main() {
 	}()
 
 	log.Info(<-errChan)
+}
+
+type spaHandler struct {
+	staticPath string
+	indexPath  string
+}
+
+func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	path, err := filepath.Abs(r.URL.Path)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	path = filepath.Join(h.staticPath, path)
+
+	_, err = os.Stat(path)
+	if os.IsNotExist(err) {
+		http.ServeFile(w, r, filepath.Join(h.staticPath, h.indexPath))
+		return
+	} else if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	http.FileServer(http.Dir(h.staticPath)).ServeHTTP(w, r)
 }
