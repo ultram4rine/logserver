@@ -35,8 +35,8 @@ import (
 
 func init() {
 	if _, err := os.Stat("ui/node_modules"); os.IsNotExist(err) {
-		log.Warnln("Dependencies of web app are not installed")
-		log.Infoln("Running 'npm install'...")
+		log.Warn("Dependencies of web app are not installed")
+		log.Info("Running 'npm install'...")
 
 		cmd := exec.Command("npm", "install")
 		cmd.Stdout = os.Stdout
@@ -47,7 +47,7 @@ func init() {
 			log.Fatalf("Failed install web app dependencies: %s", err)
 		}
 
-		log.Infoln("Dependencies of web app installed")
+		log.Info("Dependencies of web app installed")
 	}
 
 	cmd := exec.Command("npm", "run", "build")
@@ -55,13 +55,13 @@ func init() {
 	cmd.Stderr = os.Stderr
 	cmd.Dir = "./ui"
 
-	log.Infoln("Building web app...")
+	log.Info("Building web app...")
 
 	if err := cmd.Run(); err != nil {
 		log.Fatalf("Failed to build web app: %s", err)
 	}
 
-	log.Infoln("Web app builded successfully")
+	log.Info("Web app builded successfully")
 }
 
 var confPath = kingpin.Flag("conf", "Path to config file.").Short('c').Default("logserver.conf.toml").String()
