@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/exec"
 	"os/signal"
 	"path/filepath"
 	"syscall"
@@ -31,6 +32,37 @@ import (
 	"google.golang.org/grpc/credentials"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
+
+func init() {
+	if _, err := os.Stat("ui/node_modules"); os.IsNotExist(err) {
+		log.Warnln("Dependencies of web app are not installed")
+		log.Infoln("Running 'npm install'...")
+
+		cmd := exec.Command("npm", "install")
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		cmd.Dir = "./ui"
+
+		if err := cmd.Run(); err != nil {
+			log.Fatalf("Failed install web app dependencies: %s", err)
+		}
+
+		log.Infoln("Dependencies of web app installed")
+	}
+
+	cmd := exec.Command("npm", "run", "build")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Dir = "./ui"
+
+	log.Infoln("Building web app...")
+
+	if err := cmd.Run(); err != nil {
+		log.Fatalf("Failed to build web app: %s", err)
+	}
+
+	log.Infoln("Web app builded successfully")
+}
 
 var confPath = kingpin.Flag("conf", "Path to config file.").Short('c').Default("logserver.conf.toml").String()
 
