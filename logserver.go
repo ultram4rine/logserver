@@ -19,6 +19,7 @@ import (
 	"git.sgu.ru/ultramarine/logserver/service"
 
 	_ "github.com/ClickHouse/clickhouse-go"
+	"github.com/gorilla/mux"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -97,15 +98,18 @@ func main() {
 			RootCAs:            cp,
 		}
 
-		mux := runtime.NewServeMux()
+		mu := runtime.NewServeMux()
 		opts := []grpc.DialOption{grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig))}
-		err = pb.RegisterLogServiceHandlerFromEndpoint(ctx, mux, fmt.Sprintf("localhost:%s", conf.Conf.App.ListenPort), opts)
+		err = pb.RegisterLogServiceHandlerFromEndpoint(ctx, mu, fmt.Sprintf("localhost:%s", conf.Conf.App.ListenPort), opts)
 		if err != nil {
 			errChan <- err
 			return
 		}
 
-		http.ListenAndServe(":"+conf.Conf.App.GatewayPort, mux)
+		router := mux.NewRouter()
+		router.HandleFunc("/api/auth", auth.Handler)
+
+		http.ListenAndServe(":"+conf.Conf.App.GatewayPort, mu)
 	}()
 
 	go func() {
