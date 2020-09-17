@@ -10,6 +10,24 @@ export default function () {
   const DHCPLogs = ref([]);
   const switchLogs = ref([]);
 
+  const DHCPHeaders = [
+    { text: "IP", align: "start", value: "ip" },
+    {
+      text: "Timestamp",
+      value: "ts",
+    },
+    { text: "Message", value: "message" },
+  ];
+  const switchHeaders = [
+    { text: "IP", align: "start", value: "ip" },
+    { text: "Name", value: "name" },
+    {
+      text: "Timestamp",
+      value: "ts",
+    },
+    { text: "Message", value: "message" },
+  ];
+
   const getDHCPLogs = async (mac, from, to) => {
     try {
       const resp = await axios.post(DHCPLogsEndpoint, {
@@ -41,6 +59,9 @@ export default function () {
   return {
     DHCPLogs,
     switchLogs,
+
+    DHCPHeaders,
+    switchHeaders,
 
     getDHCPLogs,
     getSwitchLogs,
