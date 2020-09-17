@@ -17,8 +17,8 @@ require (
 	github.com/sirupsen/logrus v1.6.0
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a // indirect
 	golang.org/x/net v0.0.0-20200904194848-62affa334b73 // indirect
-	golang.org/x/sys v0.0.0-20200909081042-eff7692f9009 // indirect
-	google.golang.org/genproto v0.0.0-20200911024640-645f7a48b24f
+	golang.org/x/sys v0.0.0-20200917073148-efd3b9a0ff20 // indirect
+	google.golang.org/genproto v0.0.0-20200916143405-f6a2fa72f0c4
 	google.golang.org/grpc v1.32.0
 	google.golang.org/grpc/examples v0.0.0-20200910201057-6591123024b3 // indirect
 	google.golang.org/protobuf v1.25.0
