@@ -1,5 +1,7 @@
 import axios from "axios";
 
+import { config } from "@/config";
+
 import {
   AUTH_LOGIN,
   AUTH_LOGOUT,
@@ -25,7 +27,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       context.commit(AUTH_LOGIN);
       axios
-        .post(`api/auth`, user)
+        .post(`${config.apiURL}/auth`, user)
         .then((resp) => {
           localStorage.setItem("user-token", resp.data);
           context.commit(AUTH_SUCCESS, resp);
