@@ -57,24 +57,20 @@
             v-if="time === 'Period'"
             color="primary"
             v-on:click="periodForm = true"
-            >Choose time period</v-btn
-          >
+          >Choose time period</v-btn>
 
           <v-spacer></v-spacer>
 
           <v-btn
             v-if="selection === 'DHCP Logs'"
             color="primary"
-            v-on:click="getDHCPLogs"
-            >Show DHCP logs</v-btn
-          >
+            v-on:click="insertDHCPLogs"
+          >Show DHCP logs</v-btn>
           <v-btn
             v-else-if="selection === 'Switch Logs'"
             color="primary"
-            v-on:click="getSwitchLogs"
-          >
-            Show Switch logs
-          </v-btn>
+            v-on:click="insertSwitchLogs"
+          >Show Switch logs</v-btn>
         </v-toolbar>
       </v-card>
     </v-card>
@@ -128,24 +124,12 @@
                   min-width="290px"
                 >
                   <template v-slot:activator="{ on }">
-                    <v-text-field
-                      v-model="fromDate"
-                      label="From this date"
-                      readonly
-                      v-on="on"
-                    ></v-text-field>
+                    <v-text-field v-model="fromDate" label="From this date" readonly v-on="on"></v-text-field>
                   </template>
                   <v-date-picker v-model="fromDate" no-title scrollable>
                     <v-spacer></v-spacer>
-                    <v-btn text color="primary" @click="menuFromDate = false"
-                      >Cancel</v-btn
-                    >
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="$refs.menuFD.save(fromDate)"
-                      >OK</v-btn
-                    >
+                    <v-btn text color="primary" @click="menuFromDate = false">Cancel</v-btn>
+                    <v-btn text color="primary" @click="$refs.menuFD.save(fromDate)">OK</v-btn>
                   </v-date-picker>
                 </v-menu>
               </v-col>
@@ -163,12 +147,7 @@
                   min-width="290px"
                 >
                   <template v-slot:activator="{ on }">
-                    <v-text-field
-                      v-model="fromTime"
-                      label="From this time"
-                      readonly
-                      v-on="on"
-                    ></v-text-field>
+                    <v-text-field v-model="fromTime" label="From this time" readonly v-on="on"></v-text-field>
                   </template>
                   <v-time-picker
                     v-if="menuFromTime"
@@ -194,24 +173,12 @@
                   min-width="290px"
                 >
                   <template v-slot:activator="{ on }">
-                    <v-text-field
-                      v-model="toDate"
-                      label="To this date"
-                      readonly
-                      v-on="on"
-                    ></v-text-field>
+                    <v-text-field v-model="toDate" label="To this date" readonly v-on="on"></v-text-field>
                   </template>
                   <v-date-picker v-model="toDate" no-title scrollable>
                     <v-spacer></v-spacer>
-                    <v-btn text color="primary" @click="menuToDate = false"
-                      >Cancel</v-btn
-                    >
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="$refs.menuTD.save(toDate)"
-                      >OK</v-btn
-                    >
+                    <v-btn text color="primary" @click="menuToDate = false">Cancel</v-btn>
+                    <v-btn text color="primary" @click="$refs.menuTD.save(toDate)">OK</v-btn>
                   </v-date-picker>
                 </v-menu>
               </v-col>
@@ -229,12 +196,7 @@
                   min-width="290px"
                 >
                   <template v-slot:activator="{ on }">
-                    <v-text-field
-                      v-model="toTime"
-                      label="To this time"
-                      readonly
-                      v-on="on"
-                    ></v-text-field>
+                    <v-text-field v-model="toTime" label="To this time" readonly v-on="on"></v-text-field>
                   </template>
                   <v-time-picker
                     v-if="menuToTime"
@@ -262,126 +224,90 @@
 <script>
 import { mdiCalendar, mdiClockOutline, mdiClose } from "@mdi/js";
 import axios from "axios";
+import { ref } from "@vue/composition-api";
+
+import useLogs from "@/helpers/useLogs";
+import useSwitches from "@/helpers/useSwitches";
 
 export default {
   name: "Home",
 
-  data() {
-    return {
-      mdiCalendar: mdiCalendar,
-      mdiClockOutline: mdiClockOutline,
-      mdiClose: mdiClose,
+  setup() {
+    const {
+      DHCPLogs,
+      switchLogs,
+      DHCPHeaders,
+      switchHeaders,
+      getDHCPLogs,
+      getSwitchLogs,
+    } = useLogs();
+    const { similarSwitches, getSimilarSwitches } = useSwitches();
 
-      client: null,
+    const selection = ref("DHCP Logs");
+    const items = ["DHCP Logs", "Switch Logs"];
 
-      selection: "DHCP Logs",
-      items: ["DHCP Logs", "Switch Logs"],
-      mac: "",
-      sw: "",
+    const mac = ref("");
+    const sw = ref("");
 
-      fromDate: "",
-      toDate: "",
-      fromTime: "",
-      toTime: "",
+    const fromDate = ref("");
+    const toDate = ref("");
+    const fromTime = ref("");
+    const toTime = ref("");
 
-      time: "Last 5 minutes",
-      times: [
-        "Period",
-        "Last 5 minutes",
-        "Last 15 minutes",
-        "Last 30 minutes",
-        "Last hour",
-        "Last 3 hours",
-        "Last 6 hours",
-        "Last 12 hours",
-        "Last day",
-        "Last 3 days",
-        "Last week",
-      ],
-      period: false,
-      periodForm: false,
+    const time = ref("Last 5 minutes");
+    const times = [
+      "Period",
+      "Last 5 minutes",
+      "Last 15 minutes",
+      "Last 30 minutes",
+      "Last hour",
+      "Last 3 hours",
+      "Last 6 hours",
+      "Last 12 hours",
+      "Last day",
+      "Last 3 days",
+      "Last week",
+    ];
+    const period = ref(false);
+    const periodForm = ref(false);
 
-      similarSwitches: [],
-      search: null,
-      isLoading: false,
+    const search = ref(null);
+    const isLoading = ref(false);
 
-      menuFromDate: false,
-      menuToDate: false,
-      menuFromTime: false,
-      menuToTime: false,
+    const menuFromDate = ref(false);
+    const menuToDate = ref(false);
+    const menuFromTime = ref(false);
+    const menuToTime = ref(false);
 
-      DHCPHeaders: [
-        { text: "IP", align: "start", value: "ip" },
-        {
-          text: "Timestamp",
-          value: "ts",
-        },
-        { text: "Message", value: "message" },
-      ],
-      DHCPLogs: [],
+    const insertDHCPLogs = () => {
+      let dates = transformDates(),
+        unixFrom = dates.unixFrom,
+        unixTo = dates.unixTo;
 
-      switchHeaders: [
-        { text: "IP", align: "start", value: "ip" },
-        { text: "Name", value: "name" },
-        {
-          text: "Timestamp",
-          value: "ts",
-        },
-        { text: "Message", value: "message" },
-      ],
-      switchLogs: [],
+      getDHCPLogs(mac.value, unixFrom, unixTo).then(
+        (logs) => (DHCPLogs.value = logs)
+      );
     };
-  },
-
-  methods: {
-    getDHCPLogs: function () {
-      let dates = this.transformDates(),
+    const insertSwitchLogs = () => {
+      let dates = transformDates(),
         unixFrom = dates.unixFrom,
         unixTo = dates.unixTo;
 
-      axios
-        .post("/api/dhcp", {
-          mac: this.mac,
-          from: unixFrom,
-          to: unixTo,
-        })
-        .then((resp) => {
-          this.DHCPLogs = resp.data.logs;
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    },
+      getSwitchLogs(sw.value, unixFrom, unixTo).then(
+        (logs) => (switchLogs.value = logs)
+      );
+    };
 
-    getSwitchLogs: function () {
-      let dates = this.transformDates(),
-        unixFrom = dates.unixFrom,
-        unixTo = dates.unixTo;
-
-      axios
-        .post("/api/switch", {
-          name: this.sw.name,
-          from: unixFrom,
-          to: unixTo,
-        })
-        .then((resp) => {
-          this.SwitchLogs = resp.data.logs;
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    },
-
-    transformDates: function () {
+    const transformDates = () => {
       let unixFrom, unixTo;
 
-      if (this.time === "Period") {
+      if (time.value === "Period") {
         unixFrom =
-          new Date(`${this.fromDate} ${this.fromTime}`).getTime() / 1000;
-        unixTo = new Date(`${this.toDate} ${this.toTime}`).getTime() / 1000;
+          new Date(`${fromDate.value} ${fromTime.value}`).getTime() / 1000;
+        unixTo = new Date(`${toDate.value} ${toTime.value}`).getTime() / 1000;
       } else {
         unixFrom = new Date();
-        switch (this.time) {
+        switch (time.value) {
           case "Last 5 minutes":
             unixFrom.setMinutes(unixFrom.getMinutes() - 5);
             break;
@@ -419,7 +345,47 @@ export default {
       }
 
       return { unixFrom, unixTo };
-    },
+    };
+
+    return {
+      DHCPLogs,
+      switchLogs,
+      similarSwitches,
+
+      DHCPHeaders,
+      switchHeaders,
+
+      getSimilarSwitches,
+
+      mac,
+      sw,
+      fromDate,
+      toDate,
+      fromTime,
+      toTime,
+
+      selection,
+      items,
+      time,
+      times,
+      period,
+      periodForm,
+
+      search,
+      isLoading,
+
+      menuFromDate,
+      menuToDate,
+      menuFromTime,
+      menuToTime,
+
+      insertDHCPLogs,
+      insertSwitchLogs,
+
+      mdiCalendar,
+      mdiClockOutline,
+      mdiClose,
+    };
   },
 
   computed: {
