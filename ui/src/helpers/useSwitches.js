@@ -1,7 +1,7 @@
 import axios from "axios";
 import { ref } from "@vue/composition-api";
 
-import config from "@/config";
+import config from "@/config/config";
 
 const similarSwitchesEndpoint = `${config.apiURL}/similar`;
 
