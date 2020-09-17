@@ -1,4 +1,4 @@
-export let config;
+let config;
 
 if (!process.env.NODE_ENV || process.env.NODE_ENV === "production") {
   config = {
@@ -9,3 +9,5 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV === "production") {
     apiURL: "/api",
   };
 }
+
+export default config;
