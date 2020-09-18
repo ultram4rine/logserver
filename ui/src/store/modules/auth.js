@@ -30,11 +30,15 @@ const actions = {
         .post(`${config.apiURL}/auth`, user)
         .then((resp) => {
           localStorage.setItem("user-token", resp.data);
+          axios.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${resp.data}`;
           context.commit(AUTH_SUCCESS, resp);
           resolve(resp);
         })
         .catch((err) => {
           context.commit(AUTH_ERROR, err);
+          delete axios.defaults.headers.common["Authorization"];
           localStorage.removeItem("user-token");
           reject(err);
         });
