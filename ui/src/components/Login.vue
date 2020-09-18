@@ -43,27 +43,35 @@
 
 <script>
 import { mdiEye, mdiEyeOff, mdiAccount, mdiKey, mdiLogin } from "@mdi/js";
-import { ref } from "@vue/composition-api";
 
 export default {
   name: "Login",
 
-  setup() {
-    const show = ref(false);
-    const username = ref("");
-    const password = ref("");
-
+  data() {
     return {
-      show,
-      username,
-      password,
-
-      mdiEye,
-      mdiEyeOff,
-      mdiAccount,
-      mdiKey,
-      mdiLogin,
+      mdiEye: mdiEye,
+      mdiEyeOff: mdiEyeOff,
+      mdiAccount: mdiAccount,
+      mdiKey: mdiKey,
+      mdiLogin: mdiLogin,
+      show: false,
+      username: "",
+      password: "",
     };
+  },
+
+  methods: {
+    login: function () {
+      const { username, password } = this;
+      this.$store
+        .dispatch("AUTH_LOGIN", { username, password })
+        .then(() => {
+          this.$router.push("/");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
   },
 };
 </script>
