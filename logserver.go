@@ -77,7 +77,7 @@ func main() {
 
 	db, err := sqlx.ConnectContext(ctx, "clickhouse", fmt.Sprintf("%s?username=%s&password=%s&database=%s", conf.Conf.DB.Host, conf.Conf.DB.User, conf.Conf.DB.Pass, conf.Conf.DB.Name))
 	if err != nil {
-		log.Warnf("Failed to connect to database: %v", err)
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
 	defer db.Close()
 	log.Info("Connected to ClickHouse database")
