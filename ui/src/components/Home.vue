@@ -353,7 +353,7 @@ export default {
 
         isLoading.value = true;
 
-        getSimilarSwitches(name).then((switches) => {
+        getSimilarSwitches(name.value).then((switches) => {
           SimilarSwitches.value = switches;
           isLoading.value = false;
         });
