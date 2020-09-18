@@ -36,7 +36,7 @@ router.beforeEach((to, _from, next) => {
     }
   } else if (to.matched.some((record) => record.meta.skipIfAuth)) {
     if (store.getters.isAuthenticated) {
-      next({ path: "/builds" });
+      next({ path: "/" });
     } else {
       next();
     }
