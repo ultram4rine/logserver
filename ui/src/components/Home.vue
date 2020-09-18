@@ -87,7 +87,7 @@
         <v-data-table
           v-else-if="selection === 'Switch Logs'"
           fixed-header
-          :headers="switchHeaders"
+          :headers="SwitchHeaders"
           sort-by="timestamp"
           :items="switchLogs"
         ></v-data-table>
