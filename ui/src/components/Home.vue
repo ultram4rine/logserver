@@ -99,14 +99,9 @@
         <v-toolbar>
           <v-toolbar-title>Choose period of time for logs</v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-btn
-            icon
-            @click="
+          <v-btn icon @click="
               periodForm = false;
-              fromTime = '';
-              toTime = '';
-            "
-          >
+            ">
             <v-icon>{{ mdiClose }}</v-icon>
           </v-btn>
         </v-toolbar>
