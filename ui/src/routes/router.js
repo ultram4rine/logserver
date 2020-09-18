@@ -26,7 +26,7 @@ const router = new VueRouter({
 
 router.beforeEach((to, _from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
-    if (!store.getters["auth/isAuthenticated"]) {
+    if (!store.getters["isAuthenticated"]) {
       next({
         path: "/login",
         query: { redirect: to.fullPath },
