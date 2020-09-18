@@ -339,7 +339,7 @@ export default {
 
     const similars = computed(() => {
       return SimilarSwitches.value.map((sw) => {
-        const desc = `${sw.name} - ${sw.ip}`;
+        const desc = `${sw.name} - ${sw.IP}`;
         return Object.assign({}, sw, { desc });
       });
     });
