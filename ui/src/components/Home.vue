@@ -89,7 +89,7 @@
           fixed-header
           :headers="SwitchHeaders"
           sort-by="timestamp"
-          :items="switchLogs"
+          :items="SwitchLogs"
         ></v-data-table>
       </v-container>
     </v-main>
@@ -283,7 +283,7 @@ export default {
     const insertSwitchLogs = () => {
       let dates = transformDates();
 
-      getSwitchLogs(name.value, dates.unixFrom, dates.unixTo).then(
+      getSwitchLogs(name.value.name, dates.unixFrom, dates.unixTo).then(
         (logs) => (SwitchLogs.value = logs)
       );
     };
