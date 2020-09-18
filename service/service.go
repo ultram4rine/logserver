@@ -31,7 +31,7 @@ func (s LogService) GetDHCPLogs(ctx context.Context, req *pb.DHCPLogsRequest) (*
 		return &pb.DHCPLogsResponse{}, err
 	}
 
-	var logs *pb.DHCPLogsResponse
+	var logs = new(pb.DHCPLogsResponse)
 	for rows.Next() {
 		var (
 			l  *pb.DHCPLog
@@ -61,7 +61,7 @@ func (s LogService) GetSwitchLogs(ctx context.Context, req *pb.SwitchLogsRequest
 		return &pb.SwitchLogsResponse{}, err
 	}
 
-	var logs *pb.SwitchLogsResponse
+	var logs = new(pb.SwitchLogsResponse)
 	for rows.Next() {
 		var l *pb.SwitchLog
 		if err = rows.Scan(&l.Ts, &l.Message); err != nil {
@@ -84,10 +84,10 @@ func (s LogService) GetSimilarSwitches(ctx context.Context, req *pb.SimilarSwitc
 		return &pb.SimilarSwitchesResponse{}, err
 	}
 
-	var switches *pb.SimilarSwitchesResponse
+	var switches = new(pb.SimilarSwitchesResponse)
 	for rows.Next() {
 		var (
-			s  *pb.SimilarSwitch
+			s  = new(pb.SimilarSwitch)
 			IP net.IP
 		)
 
