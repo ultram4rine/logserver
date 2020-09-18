@@ -223,8 +223,7 @@
 
 <script>
 import { mdiCalendar, mdiClockOutline, mdiClose } from "@mdi/js";
-import axios from "axios";
-import { ref } from "@vue/composition-api";
+import { ref, computed, watch } from "@vue/composition-api";
 
 import useLogs from "@/helpers/useLogs";
 import useSwitches from "@/helpers/useSwitches";
@@ -343,6 +342,29 @@ export default {
       return { unixFrom, unixTo };
     };
 
+    const similars = computed(() => {
+      return SimilarSwitches.value.map((sw) => {
+        const desc = `${sw.name} - ${sw.ip}`;
+        return Object.assign({}, sw, { desc });
+      });
+    });
+
+    watch(
+      () => search.value,
+      () => {
+        if (SimilarSwitches.value.length > 0) return;
+
+        if (isLoading.value) return;
+
+        isLoading.value = true;
+
+        getSimilarSwitches(name).then((switches) => {
+          SimilarSwitches.value = switches;
+          isLoading.value = false;
+        });
+      }
+    );
+
     return {
       DHCPLogs,
       SwitchLogs,
@@ -378,39 +400,12 @@ export default {
       insertDHCPLogs,
       insertSwitchLogs,
 
+      similars,
+
       mdiCalendar,
       mdiClockOutline,
       mdiClose,
     };
-  },
-
-  computed: {
-    similars() {
-      return this.similarSwitches.map((sw) => {
-        const desc = `${sw.name} - ${sw.ip}`;
-        return Object.assign({}, sw, { desc });
-      });
-    },
-  },
-
-  watch: {
-    search(val) {
-      if (this.similarSwitches.length > 0) return;
-
-      if (this.isLoading) return;
-
-      this.isLoading = true;
-
-      axios
-        .post("/api/similar", { name: this.sw })
-        .then((resp) => {
-          this.similarSwitches = resp.data.switches;
-        })
-        .catch((err) => {
-          console.log(err);
-        })
-        .finally(() => (this.isLoading = false));
-    },
   },
 };
 </script>
