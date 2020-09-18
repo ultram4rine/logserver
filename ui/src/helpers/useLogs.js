@@ -8,7 +8,7 @@ const switchLogsEndpoint = `${config.apiURL}/switches`;
 
 export default function () {
   const DHCPLogs = ref([]);
-  const switchLogs = ref([]);
+  const SwitchLogs = ref([]);
 
   const DHCPHeaders = [
     { text: "IP", align: "start", value: "ip" },
@@ -18,7 +18,7 @@ export default function () {
     },
     { text: "Message", value: "message" },
   ];
-  const switchHeaders = [
+  const SwitchHeaders = [
     { text: "IP", align: "start", value: "ip" },
     { text: "Name", value: "name" },
     {
@@ -58,10 +58,10 @@ export default function () {
 
   return {
     DHCPLogs,
-    switchLogs,
+    SwitchLogs,
 
     DHCPHeaders,
-    switchHeaders,
+    SwitchHeaders,
 
     getDHCPLogs,
     getSwitchLogs,

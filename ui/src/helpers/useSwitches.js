@@ -6,7 +6,7 @@ import config from "@/config/config";
 const similarSwitchesEndpoint = `${config.apiURL}/similar`;
 
 export default function () {
-  const similarSwitches = ref([]);
+  const SimilarSwitches = ref([]);
 
   const getSimilarSwitches = async (name) => {
     try {
@@ -21,7 +21,7 @@ export default function () {
   };
 
   return {
-    similarSwitches,
+    SimilarSwitches,
 
     getSimilarSwitches,
   };

@@ -235,13 +235,13 @@ export default {
   setup() {
     const {
       DHCPLogs,
-      switchLogs,
+      SwitchLogs,
       DHCPHeaders,
-      switchHeaders,
+      SwitchHeaders,
       getDHCPLogs,
       getSwitchLogs,
     } = useLogs();
-    const { similarSwitches, getSimilarSwitches } = useSwitches();
+    const { SimilarSwitches, getSimilarSwitches } = useSwitches();
 
     const selection = ref("DHCP Logs");
     const items = ["DHCP Logs", "Switch Logs"];
@@ -280,21 +280,17 @@ export default {
     const menuToTime = ref(false);
 
     const insertDHCPLogs = () => {
-      let dates = transformDates(),
-        unixFrom = dates.unixFrom,
-        unixTo = dates.unixTo;
+      let dates = transformDates();
 
-      getDHCPLogs(mac.value, unixFrom, unixTo).then(
+      getDHCPLogs(mac.value, dates.unixFrom, dates.unixTo).then(
         (logs) => (DHCPLogs.value = logs)
       );
     };
     const insertSwitchLogs = () => {
-      let dates = transformDates(),
-        unixFrom = dates.unixFrom,
-        unixTo = dates.unixTo;
+      let dates = transformDates();
 
-      getSwitchLogs(sw.value, unixFrom, unixTo).then(
-        (logs) => (switchLogs.value = logs)
+      getSwitchLogs(sw.value, dates.unixFrom, dates.unixTo).then(
+        (logs) => (SwitchLogs.value = logs)
       );
     };
 
@@ -349,11 +345,11 @@ export default {
 
     return {
       DHCPLogs,
-      switchLogs,
-      similarSwitches,
+      SwitchLogs,
+      SimilarSwitches,
 
       DHCPHeaders,
-      switchHeaders,
+      SwitchHeaders,
 
       getSimilarSwitches,
 
