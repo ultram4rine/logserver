@@ -13,6 +13,7 @@ import (
 	"github.com/go-ldap/ldap/v3"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
+	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -41,11 +42,13 @@ func parseToken(tokenString string) (user, error) {
 func LDAPAuthFunc(ctx context.Context) (context.Context, error) {
 	token, err := grpc_auth.AuthFromMD(ctx, "bearer")
 	if err != nil {
+		log.Infof("Failed to get token from metadata: %s", err)
 		return nil, err
 	}
 
 	tokenInfo, err := parseToken(token)
 	if err != nil {
+		log.Infof("Failed to parse token: %s", err)
 		return nil, status.Errorf(codes.Unauthenticated, "invalid auth token: %v", err)
 	}
 
@@ -67,18 +70,21 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(r.Body).Decode(&loginInfo); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		log.Infof("Failed to decode auth request: %s", err)
 		return
 	}
 
 	if err := authenticate(loginInfo.Username, loginInfo.Password); err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
+		log.Infof("Failed authenticate user %s: %s", loginInfo.Username, err)
 		return
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"username": loginInfo.Username})
-	tokenString, err := token.SignedString(conf.Conf.App.JWTKey)
+	tokenString, err := token.SignedString([]byte(conf.Conf.App.JWTKey))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Infof("Failed create token for user %s: %s", loginInfo.Username, err)
 		return
 	}
 
