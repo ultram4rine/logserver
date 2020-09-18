@@ -29,7 +29,7 @@
             hide-details
             single-line
             label="Switch name"
-            v-model="sw"
+            v-model="name"
             :items="similars"
             :search-input.sync="search"
             :loading="isLoading"
@@ -241,7 +241,7 @@ export default {
     const items = ["DHCP Logs", "Switch Logs"];
 
     const mac = ref("");
-    const sw = ref("");
+    const name = ref("");
 
     const fromDate = ref("");
     const toDate = ref("");
@@ -283,7 +283,7 @@ export default {
     const insertSwitchLogs = () => {
       let dates = transformDates();
 
-      getSwitchLogs(sw.value, dates.unixFrom, dates.unixTo).then(
+      getSwitchLogs(name.value, dates.unixFrom, dates.unixTo).then(
         (logs) => (SwitchLogs.value = logs)
       );
     };
@@ -371,7 +371,7 @@ export default {
       getSimilarSwitches,
 
       mac,
-      sw,
+      name,
       fromDate,
       toDate,
       fromTime,
