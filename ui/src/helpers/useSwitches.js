@@ -13,7 +13,7 @@ export default function () {
       const resp = await axios.post(similarSwitchesEndpoint, {
         name: name,
       });
-      return resp.data;
+      return resp.data.switches;
     } catch (err) {
       console.log(err);
       return [];

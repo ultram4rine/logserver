@@ -35,7 +35,7 @@ export default function () {
         from: from,
         to: to,
       });
-      return resp.data;
+      return resp.data.logs;
     } catch (err) {
       console.log(err);
       return [];
@@ -49,7 +49,7 @@ export default function () {
         from: from,
         to: to,
       });
-      return resp.data;
+      return resp.data.logs;
     } catch (err) {
       console.log(err);
       return [];
