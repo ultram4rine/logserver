@@ -25,6 +25,8 @@ import (
 	"github.com/gorilla/mux"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
+	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
+	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
@@ -100,9 +102,29 @@ func main() {
 			return
 		}
 
-		gRPCServer := grpc.NewServer(grpc.Creds(creds), grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			grpc_auth.UnaryServerInterceptor(auth.LDAPAuthFunc),
-		)))
+		var (
+			logrusLogger    *log.Logger
+			codeToLevelFunc grpc_logrus.CodeToLevel
+		)
+
+		logrusEntry := log.NewEntry(logrusLogger)
+		opts := []grpc_logrus.Option{
+			grpc_logrus.WithLevels(codeToLevelFunc),
+		}
+		grpc_logrus.ReplaceGrpcLogger(logrusEntry)
+
+		gRPCServer := grpc.NewServer(
+			grpc.Creds(creds),
+			grpc.UnaryInterceptor(
+				grpc_middleware.ChainUnaryServer(
+					grpc_auth.UnaryServerInterceptor(auth.LDAPAuthFunc),
+				),
+			),
+			grpc_middleware.WithUnaryServerChain(
+				grpc_ctxtags.UnaryServerInterceptor(grpc_ctxtags.WithFieldExtractor(grpc_ctxtags.CodeGenRequestFieldExtractor)),
+				grpc_logrus.UnaryServerInterceptor(logrusEntry, opts...),
+			),
+		)
 		pb.RegisterLogServiceServer(gRPCServer, svc)
 
 		log.Infof("Started LogServer on %s port", conf.Conf.App.ListenPort)
