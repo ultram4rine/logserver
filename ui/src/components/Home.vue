@@ -65,12 +65,12 @@
             v-if="selection === 'DHCP Logs'"
             color="primary"
             v-on:click="insertDHCPLogs"
-          >Show DHCP logs</v-btn>
+          >Show logs</v-btn>
           <v-btn
             v-else-if="selection === 'Switch Logs'"
             color="primary"
             v-on:click="insertSwitchLogs"
-          >Show Switch logs</v-btn>
+          >Show logs</v-btn>
         </v-toolbar>
       </v-card>
     </v-card>
@@ -99,9 +99,7 @@
         <v-toolbar>
           <v-toolbar-title>Choose period of time for logs</v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-btn icon @click="
-              periodForm = false;
-            ">
+          <v-btn icon @click="periodForm = false;">
             <v-icon>{{ mdiClose }}</v-icon>
           </v-btn>
         </v-toolbar>
