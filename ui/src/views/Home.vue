@@ -289,41 +289,41 @@ export default {
     const transformDates = () => {
       let unixFrom, unixTo;
 
-      if (time.value === "Period") {
+      if (time.value === times[0]) {
         unixFrom =
           new Date(`${fromDate.value} ${fromTime.value}`).getTime() / 1000;
         unixTo = new Date(`${toDate.value} ${toTime.value}`).getTime() / 1000;
       } else {
         unixFrom = new Date();
         switch (time.value) {
-          case "Last 5 minutes":
+          case times[1]:
             unixFrom.setMinutes(unixFrom.getMinutes() - 5);
             break;
-          case "Last 15 minutes":
+          case times[2]:
             unixFrom.setMinutes(unixFrom.getMinutes() - 15);
             break;
-          case "Last 30 minutes":
+          case times[3]:
             unixFrom.setMinutes(unixFrom.getMinutes() - 30);
             break;
-          case "Last hour":
+          case times[4]:
             unixFrom.setHours(unixFrom.getHours() - 1);
             break;
-          case "Last 3 hours":
+          case times[5]:
             unixFrom.setHours(unixFrom.getHours() - 3);
             break;
-          case "Last 6 hours":
+          case times[6]:
             unixFrom.setHours(unixFrom.getHours() - 6);
             break;
-          case "Last 12 hours":
+          case times[7]:
             unixFrom.setHours(unixFrom.getHours() - 12);
             break;
-          case "Last day":
+          case times[8]:
             unixFrom.setHours(unixFrom.getHours() - 24);
             break;
-          case "Last 3 days":
+          case times[9]:
             unixFrom.setHours(unixFrom.getHours() - 3 * 24);
             break;
-          case "Last week":
+          case times[10]:
             unixFrom.setHours(unixFrom.getHours() - 7 * 24);
             break;
         }
