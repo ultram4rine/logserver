@@ -12,15 +12,15 @@ require (
 	github.com/golang/protobuf v1.4.2
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
-	github.com/grpc-ecosystem/grpc-gateway v1.14.8
+	github.com/grpc-ecosystem/grpc-gateway v1.15.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/sirupsen/logrus v1.6.0
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a // indirect
 	golang.org/x/net v0.0.0-20200904194848-62affa334b73 // indirect
-	golang.org/x/sys v0.0.0-20200917073148-efd3b9a0ff20 // indirect
-	google.golang.org/genproto v0.0.0-20200916143405-f6a2fa72f0c4
+	golang.org/x/sys v0.0.0-20200918174421-af09f7315aff // indirect
+	google.golang.org/genproto v0.0.0-20200918140846-d0d605568037
 	google.golang.org/grpc v1.32.0
-	google.golang.org/grpc/examples v0.0.0-20200910201057-6591123024b3 // indirect
+	google.golang.org/grpc/examples v0.0.0-20200917190803-0f7e218c2cf4 // indirect
 	google.golang.org/protobuf v1.25.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
