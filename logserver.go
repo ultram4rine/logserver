@@ -104,18 +104,18 @@ func main() {
 			return
 		}
 
-		logrusEntry := logrus.NewEntry(logger)
+		entry := logrus.NewEntry(logger)
 		opts := []grpc_logrus.Option{
 			grpc_logrus.WithLevels(grpc_logrus.DefaultCodeToLevel),
 		}
-		grpc_logrus.ReplaceGrpcLogger(logrusEntry)
+		grpc_logrus.ReplaceGrpcLogger(entry)
 
 		gRPCServer := grpc.NewServer(
 			grpc.Creds(creds),
 			grpc_middleware.WithUnaryServerChain(
 				grpc_ctxtags.UnaryServerInterceptor(grpc_ctxtags.WithFieldExtractor(grpc_ctxtags.CodeGenRequestFieldExtractor)),
 				grpc_auth.UnaryServerInterceptor(auth.LDAPAuthFunc),
-				grpc_logrus.UnaryServerInterceptor(logrusEntry, opts...),
+				grpc_logrus.UnaryServerInterceptor(entry, opts...),
 			),
 		)
 		pb.RegisterLogServiceServer(gRPCServer, svc)
@@ -150,9 +150,7 @@ func main() {
 		gwmux := runtime.NewServeMux()
 		opts := []grpc.DialOption{
 			grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)),
-			grpc.WithUnaryInterceptor(grpc_logrus.PayloadUnaryClientInterceptor(logrus.NewEntry(logger), func(ctx context.Context, fullMethodName string) bool {
-				return true
-			})),
+			grpc.WithUnaryInterceptor(grpc_logrus.UnaryClientInterceptor(log.NewEntry(logger))),
 		}
 		err = pb.RegisterLogServiceHandlerFromEndpoint(ctx, gwmux, fmt.Sprintf("localhost:%s", conf.Conf.App.ListenPort), opts)
 		if err != nil {
