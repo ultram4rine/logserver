@@ -10,13 +10,13 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"os/exec"
 	"os/signal"
 	"path/filepath"
 	"syscall"
 	"time"
 
 	"git.sgu.ru/ultramarine/logserver/auth"
+	"git.sgu.ru/ultramarine/logserver/cmd"
 	"git.sgu.ru/ultramarine/logserver/conf"
 	"git.sgu.ru/ultramarine/logserver/pb"
 	"git.sgu.ru/ultramarine/logserver/service"
@@ -37,42 +37,35 @@ import (
 )
 
 var (
-	confPath = kingpin.Flag("conf", "Path to config file.").Short('c').Default("logserver.conf.toml").String()
-	buildSPA = kingpin.Flag("build-spa", "Build WEB app.").Short('b').Bool()
+	confPath               = kingpin.Flag("conf", "Path to config file.").Short('c').Default("logserver.conf.toml").String()
+	installWEBDependencies = kingpin.Flag("install-spa-dependencies", "Install WEB app dependencies.").Short('i').Bool()
+	buildSPA               = kingpin.Flag("build-spa", "Build WEB app.").Short('b').Bool()
 )
 
 func init() {
 	kingpin.Parse()
 
-	if _, err := os.Stat("ui/node_modules"); os.IsNotExist(err) {
-		log.Warn("Dependencies of web app are not installed")
+	if *installWEBDependencies {
 		log.Info("Running 'npm install'...")
-
-		cmd := exec.Command("npm", "install")
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		cmd.Dir = "./ui"
-
-		if err := cmd.Run(); err != nil {
-			log.Fatalf("Failed install web app dependencies: %s", err)
+		if err := cmd.InstallWEBDependenciesCmd.Run(); err != nil {
+			log.Fatalf("Failed to install web app dependencies: %s", err)
 		}
-
 		log.Info("Dependencies of web app installed")
 	}
 
 	if *buildSPA {
-		cmd := exec.Command("npm", "run", "build")
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		cmd.Dir = "./ui"
-
 		log.Info("Building web app...")
-
-		if err := cmd.Run(); err != nil {
+		if err := cmd.BuildWEBAppCmd.Run(); err != nil {
 			log.Fatalf("Failed to build web app: %s", err)
 		}
-
 		log.Info("Web app builded successfully")
+	}
+
+	if _, err := os.Stat("ui/node_modules"); os.IsNotExist(err) {
+		log.Fatal("Dependencies of web app are not installed.\nRun program with '-i' flag or run 'npm install' in 'ui' folder")
+	}
+	if _, err := os.Stat("ui/build"); os.IsNotExist(err) {
+		log.Fatal("Web app are not built.\nRun program with '-b' flag or run 'npm run build' in 'ui' folder")
 	}
 }
 
