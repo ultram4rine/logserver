@@ -86,6 +86,7 @@ func main() {
 	log.Info("Connected to ClickHouse database")
 
 	var (
+		logger  = log.New()
 		svc     = service.LogService{DB: db}
 		errChan = make(chan error, 1000)
 	)
@@ -102,8 +103,6 @@ func main() {
 			errChan <- err
 			return
 		}
-
-		var logger *log.Logger
 
 		logrusEntry := logrus.NewEntry(logger)
 		opts := []grpc_logrus.Option{
@@ -149,7 +148,12 @@ func main() {
 		}
 
 		gwmux := runtime.NewServeMux()
-		opts := []grpc.DialOption{grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig))}
+		opts := []grpc.DialOption{
+			grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)),
+			grpc.WithUnaryInterceptor(grpc_logrus.PayloadUnaryClientInterceptor(logrus.NewEntry(logger), func(ctx context.Context, fullMethodName string) bool {
+				return true
+			})),
+		}
 		err = pb.RegisterLogServiceHandlerFromEndpoint(ctx, gwmux, fmt.Sprintf("localhost:%s", conf.Conf.App.ListenPort), opts)
 		if err != nil {
 			errChan <- err
