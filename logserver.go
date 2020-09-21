@@ -36,7 +36,14 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
+var (
+	confPath = kingpin.Flag("conf", "Path to config file.").Short('c').Default("logserver.conf.toml").String()
+	buildSPA = kingpin.Flag("build-spa", "Build WEB app.").Short('b').Bool()
+)
+
 func init() {
+	kingpin.Parse()
+
 	if _, err := os.Stat("ui/node_modules"); os.IsNotExist(err) {
 		log.Warn("Dependencies of web app are not installed")
 		log.Info("Running 'npm install'...")
@@ -53,25 +60,23 @@ func init() {
 		log.Info("Dependencies of web app installed")
 	}
 
-	cmd := exec.Command("npm", "run", "build")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Dir = "./ui"
+	if *buildSPA {
+		cmd := exec.Command("npm", "run", "build")
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		cmd.Dir = "./ui"
 
-	log.Info("Building web app...")
+		log.Info("Building web app...")
 
-	if err := cmd.Run(); err != nil {
-		log.Fatalf("Failed to build web app: %s", err)
+		if err := cmd.Run(); err != nil {
+			log.Fatalf("Failed to build web app: %s", err)
+		}
+
+		log.Info("Web app builded successfully")
 	}
-
-	log.Info("Web app builded successfully")
 }
 
-var confPath = kingpin.Flag("conf", "Path to config file.").Short('c').Default("logserver.conf.toml").String()
-
 func main() {
-	kingpin.Parse()
-
 	if err := conf.ParseConfig(*confPath); err != nil {
 		log.Fatal(err)
 	}
