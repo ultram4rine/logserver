@@ -29,6 +29,7 @@ import (
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/jmoiron/sqlx"
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -102,26 +103,19 @@ func main() {
 			return
 		}
 
-		var (
-			logrusLogger    *log.Logger
-			codeToLevelFunc grpc_logrus.CodeToLevel
-		)
+		var logger *log.Logger
 
-		logrusEntry := log.NewEntry(logrusLogger)
+		logrusEntry := logrus.NewEntry(logger)
 		opts := []grpc_logrus.Option{
-			grpc_logrus.WithLevels(codeToLevelFunc),
+			grpc_logrus.WithLevels(grpc_logrus.DefaultCodeToLevel),
 		}
 		grpc_logrus.ReplaceGrpcLogger(logrusEntry)
 
 		gRPCServer := grpc.NewServer(
 			grpc.Creds(creds),
-			grpc.UnaryInterceptor(
-				grpc_middleware.ChainUnaryServer(
-					grpc_auth.UnaryServerInterceptor(auth.LDAPAuthFunc),
-				),
-			),
 			grpc_middleware.WithUnaryServerChain(
 				grpc_ctxtags.UnaryServerInterceptor(grpc_ctxtags.WithFieldExtractor(grpc_ctxtags.CodeGenRequestFieldExtractor)),
+				grpc_auth.UnaryServerInterceptor(auth.LDAPAuthFunc),
 				grpc_logrus.UnaryServerInterceptor(logrusEntry, opts...),
 			),
 		)
@@ -176,7 +170,7 @@ func main() {
 			ReadTimeout:  15 * time.Second,
 		}
 
-		log.Fatal(srv.ListenAndServe())
+		errChan <- srv.ListenAndServe()
 	}()
 
 	go func() {
