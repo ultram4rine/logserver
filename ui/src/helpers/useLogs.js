@@ -14,7 +14,7 @@ export default function () {
     { text: "IP", align: "start", value: "ip" },
     {
       text: "Timestamp",
-      value: "ts",
+      value: "timestamp",
     },
     { text: "Message", value: "message" },
   ];
