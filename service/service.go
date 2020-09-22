@@ -35,12 +35,20 @@ func (s LogService) GetDHCPLogs(ctx context.Context, req *pb.DHCPLogsRequest) (*
 	for rows.Next() {
 		var (
 			l  = new(pb.DHCPLog)
+			ts string
 			ip net.IP
 		)
-		if err = rows.Scan(&l.Timestamp, &l.Message, &ip); err != nil {
+
+		if err = rows.Scan(&ts, &l.Message, &ip); err != nil {
 			return &pb.DHCPLogsResponse{}, err
 		}
 
+		t, err := time.Parse(time.RFC3339, ts)
+		if err != nil {
+			return &pb.DHCPLogsResponse{}, err
+		}
+
+		l.Timestamp = t.Format("02/01/2006 15:04:05")
 		l.Ip = ip.String()
 
 		logs.Logs = append(logs.Logs, l)
@@ -63,10 +71,21 @@ func (s LogService) GetSwitchLogs(ctx context.Context, req *pb.SwitchLogsRequest
 
 	var logs = new(pb.SwitchLogsResponse)
 	for rows.Next() {
-		var l = new(pb.SwitchLog)
-		if err = rows.Scan(&l.Ts, &l.Message); err != nil {
+		var (
+			l  = new(pb.SwitchLog)
+			ts string
+		)
+
+		if err = rows.Scan(&ts, &l.Message); err != nil {
 			return &pb.SwitchLogsResponse{}, err
 		}
+
+		t, err := time.Parse(time.RFC3339, ts)
+		if err != nil {
+			return &pb.SwitchLogsResponse{}, err
+		}
+
+		l.Ts = t.Format("02/01/2006 15:04:05")
 
 		logs.Logs = append(logs.Logs, l)
 	}
