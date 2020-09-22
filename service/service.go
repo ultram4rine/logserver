@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"encoding/hex"
 	"net"
 	"time"
 
@@ -27,10 +26,7 @@ type LogService struct {
 func (s LogService) GetDHCPLogs(ctx context.Context, req *pb.DHCPLogsRequest) (*pb.DHCPLogsResponse, error) {
 	timeFrom, timeTo := parseTime(req.From, req.To)
 
-	mhex, _ := hex.DecodeString(req.MAC)
-	mcvt := net.HardwareAddr(mhex).String()
-
-	rows, err := s.DB.QueryxContext(ctx, "SELECT ts, message, ip FROM dhcp.events WHERE mac = MACStringToNum(?) AND ts > ? AND ts < ? ORDER BY ts DESC", mcvt, timeFrom, timeTo)
+	rows, err := s.DB.QueryxContext(ctx, "SELECT ts, message, ip FROM dhcp.events WHERE mac = MACStringToNum(?) AND ts > ? AND ts < ? ORDER BY ts DESC", req.MAC, timeFrom, timeTo)
 	if err != nil {
 		return &pb.DHCPLogsResponse{}, err
 	}
