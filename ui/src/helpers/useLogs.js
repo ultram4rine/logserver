@@ -29,6 +29,21 @@ export default function () {
   ];
 
   const getDHCPLogs = async (mac, from, to) => {
+    const macRegExp = /[0-9a-fA-F]{12}/;
+
+    mac = mac.toLowerCase();
+    mac = mac.replace(/\.|-|:/g, "");
+
+    if (mac.length === 12) {
+      if (!macRegExp.test(mac)) {
+        alert("Wrong mac-address!");
+        return;
+      }
+    } else {
+      alert("Mac-address too long!");
+      return;
+    }
+
     try {
       const resp = await axios.post(DHCPLogsEndpoint, {
         MAC: mac,
