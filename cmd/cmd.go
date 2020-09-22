@@ -7,20 +7,18 @@ import (
 
 var (
 	// InstallWEBDependenciesCmd install dependencies of WEB app.
-	InstallWEBDependenciesCmd = &exec.Cmd{
-		Path:   "npm",
-		Args:   append([]string{"npm"}, "install"),
-		Dir:    "./ui",
-		Stdout: os.Stdout,
-		Stderr: os.Stderr,
-	}
+	InstallWEBDependenciesCmd = exec.Command("npm", "install")
 
 	// BuildWEBAppCmd build WEB app.
-	BuildWEBAppCmd = &exec.Cmd{
-		Path:   "npm",
-		Args:   append([]string{"npm"}, "run", "build"),
-		Dir:    "./ui",
-		Stdout: os.Stdout,
-		Stderr: os.Stderr,
-	}
+	BuildWEBAppCmd = exec.Command("npm", "run", "build")
 )
+
+func init() {
+	InstallWEBDependenciesCmd.Dir = "./ui"
+	InstallWEBDependenciesCmd.Stdout = os.Stdout
+	InstallWEBDependenciesCmd.Stderr = os.Stderr
+
+	BuildWEBAppCmd.Dir = "./ui"
+	BuildWEBAppCmd.Stdout = os.Stdout
+	BuildWEBAppCmd.Stderr = os.Stderr
+}
