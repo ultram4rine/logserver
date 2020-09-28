@@ -50,10 +50,9 @@ message SwitchLogsRequest {
 }
 
 message SwitchLog {
-    string ip = 1;
-    string name = 2;
-    string ts = 3;
-    string message = 4;
+    string ts_local = 1;
+    string ts_remote = 2;
+    string message = 3;
 }
 
 message SwitchLogsResponse {

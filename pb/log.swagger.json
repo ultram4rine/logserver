@@ -183,13 +183,10 @@
     "pbSwitchLog": {
       "type": "object",
       "properties": {
-        "ip": {
+        "ts_local": {
           "type": "string"
         },
-        "name": {
-          "type": "string"
-        },
-        "ts": {
+        "ts_remote": {
           "type": "string"
         },
         "message": {
