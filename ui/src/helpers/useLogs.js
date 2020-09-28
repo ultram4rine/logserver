@@ -19,11 +19,13 @@ export default function () {
     { text: "Message", value: "message" },
   ];
   const SwitchHeaders = [
-    { text: "IP", align: "start", value: "ip" },
-    { text: "Name", value: "name" },
     {
-      text: "Timestamp",
-      value: "ts",
+      text: "Local timestamp",
+      value: "ts_local",
+    },
+    {
+      text: "Remote timestamp",
+      value: "ts_remote",
     },
     { text: "Message", value: "message" },
   ];
