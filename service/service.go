@@ -64,7 +64,7 @@ func (s LogService) GetDHCPLogs(ctx context.Context, req *pb.DHCPLogsRequest) (*
 func (s LogService) GetSwitchLogs(ctx context.Context, req *pb.SwitchLogsRequest) (*pb.SwitchLogsResponse, error) {
 	timeFrom, timeTo := parseTime(req.From, req.To)
 
-	rows, err := s.DB.QueryxContext(ctx, "SELECT ts_remote, log_msg FROM switchlogs WHERE sw_name = ? AND ts_local > ? AND ts_local < ? ORDER BY ts_local DESC", req.Name, timeFrom, timeTo)
+	rows, err := s.DB.QueryxContext(ctx, "SELECT ts_local, ts_remote, log_msg FROM switchlogs WHERE sw_name = ? AND ts_local > ? AND ts_local < ? ORDER BY ts_local DESC", req.Name, timeFrom, timeTo)
 	if err != nil {
 		return &pb.SwitchLogsResponse{}, err
 	}
@@ -72,20 +72,26 @@ func (s LogService) GetSwitchLogs(ctx context.Context, req *pb.SwitchLogsRequest
 	var logs = new(pb.SwitchLogsResponse)
 	for rows.Next() {
 		var (
-			l  = new(pb.SwitchLog)
-			ts string
+			l        = new(pb.SwitchLog)
+			tsLocal  string
+			tsRemote string
 		)
 
-		if err = rows.Scan(&ts, &l.Message); err != nil {
+		if err = rows.Scan(&tsLocal, &tsRemote, &l.Message); err != nil {
 			return &pb.SwitchLogsResponse{}, err
 		}
 
-		t, err := time.Parse(time.RFC3339, ts)
+		tLocal, err := time.Parse(time.RFC3339, tsLocal)
+		if err != nil {
+			return &pb.SwitchLogsResponse{}, err
+		}
+		tRemote, err := time.Parse(time.RFC3339, tsRemote)
 		if err != nil {
 			return &pb.SwitchLogsResponse{}, err
 		}
 
-		l.Ts = t.Format("02/01/2006 15:04:05")
+		l.TsLocal = tLocal.Format("02/01/2006 15:04:05")
+		l.TsRemote = tRemote.Format("02/01/2006 15:04:05")
 
 		logs.Logs = append(logs.Logs, l)
 	}
