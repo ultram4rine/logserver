@@ -1,45 +1,64 @@
 package conf
 
 import (
-	"fmt"
+	"errors"
 
-	"github.com/BurntSushi/toml"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
-// Conf variable contains app configuration.
-var Conf struct {
-	App  app  `toml:"app"`
-	DB   db   `toml:"db"`
-	LDAP ldap `toml:"ldap"`
-}
-
-// ParseConfig function parse a config file into Conf variable.
-func ParseConfig(confPath string) error {
-	if _, err := toml.DecodeFile(confPath, &Conf); err != nil {
-		return fmt.Errorf("Failed to decode config file from %s", confPath)
+// GetConfig function parse a config file to viper.
+func GetConfig(confName string) error {
+	viper.SetConfigName(confName)
+	viper.AddConfigPath("/etc/logserver/")
+	viper.AddConfigPath(".")
+	if err := viper.ReadInConfig(); err != nil {
+		log.Warnf("Failed to read config file: %s", err)
 	}
+
+	viper.SetEnvPrefix("logserver")
+	if err := viper.BindEnv("cert_path"); err != nil {
+		return errors.New("Failed to bind cert_path ENV variable")
+	}
+	if err := viper.BindEnv("key_path"); err != nil {
+		return errors.New("Failed to bind key_path ENV variable")
+	}
+	if err := viper.BindEnv("client_cert_path"); err != nil {
+		return errors.New("Failed to bind client_cert_path ENV variable")
+	}
+	if err := viper.BindEnv("grpc_port"); err != nil {
+		return errors.New("Failed to bind grpc_port ENV variable")
+	}
+	if err := viper.BindEnv("gateway_port"); err != nil {
+		return errors.New("Failed to bind gateway_port ENV variable")
+	}
+	if err := viper.BindEnv("jwt_key"); err != nil {
+		return errors.New("Failed to bind jwt_key ENV variable")
+	}
+	if err := viper.BindEnv("db_host"); err != nil {
+		return errors.New("Failed to bind db_host ENV variable")
+	}
+	if err := viper.BindEnv("db_name"); err != nil {
+		return errors.New("Failed to bind db_name ENV variable")
+	}
+	if err := viper.BindEnv("db_user"); err != nil {
+		return errors.New("Failed to bind db_user ENV variable")
+	}
+	if err := viper.BindEnv("db_pass"); err != nil {
+		return errors.New("Failed to bind db_pass ENV variable")
+	}
+	if err := viper.BindEnv("ldap_host"); err != nil {
+		return errors.New("Failed to bind ldap_host ENV variable")
+	}
+	if err := viper.BindEnv("ldap_bind_dn"); err != nil {
+		return errors.New("Failed to bind ldap_bind_dn ENV variable")
+	}
+	if err := viper.BindEnv("ldap_bind_pass"); err != nil {
+		return errors.New("Failed to bind ldap_bind_pass ENV variable")
+	}
+	if err := viper.BindEnv("ldap_base_dn"); err != nil {
+		return errors.New("Failed to bind ldap_base_dn ENV variable")
+	}
+
 	return nil
-}
-
-type app struct {
-	CertPath       string `toml:"cert_path"`
-	KeyPath        string `toml:"key_path"`
-	ClientCertPath string `toml:"client_cert_path"`
-	ListenPort     string `toml:"listen_port"`
-	GatewayPort    string `toml:"gateway_port"`
-	JWTKey         string `toml:"jwt_key"`
-}
-
-type db struct {
-	Host string `toml:"host"`
-	Name string `toml:"name"`
-	User string `toml:"user"`
-	Pass string `toml:"pass"`
-}
-
-type ldap struct {
-	Host     string `toml:"host"`
-	BindDN   string `toml:"bind_dn"`
-	BindPass string `toml:"bind_pass"`
-	BaseDN   string `toml:"base_dn"`
 }

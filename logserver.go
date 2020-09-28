@@ -30,13 +30,14 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
-	confPath               = kingpin.Flag("conf", "Path to config file.").Short('c').Default("logserver.conf.toml").String()
+	confName               = kingpin.Flag("conf", "Path to config file.").Short('c').Default("logserver.conf").String()
 	installWEBDependencies = kingpin.Flag("install-spa-dependencies", "Install WEB app dependencies.").Short('i').Bool()
 	buildSPA               = kingpin.Flag("build-spa", "Build WEB app.").Short('b').Bool()
 )
@@ -69,13 +70,13 @@ func init() {
 }
 
 func main() {
-	if err := conf.ParseConfig(*confPath); err != nil {
+	if err := conf.GetConfig(*confName); err != nil {
 		log.Fatal(err)
 	}
 
 	ctx := context.Background()
 
-	db, err := sqlx.ConnectContext(ctx, "clickhouse", fmt.Sprintf("%s?username=%s&password=%s&database=%s", conf.Conf.DB.Host, conf.Conf.DB.User, conf.Conf.DB.Pass, conf.Conf.DB.Name))
+	db, err := sqlx.ConnectContext(ctx, "clickhouse", fmt.Sprintf("%s?username=%s&password=%s&database=%s", viper.GetString("db_host"), viper.GetString("db_user"), viper.GetString("db_pass"), viper.GetString("db_name")))
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
@@ -89,13 +90,13 @@ func main() {
 	)
 
 	go func() {
-		listener, err := net.Listen("tcp", ":"+conf.Conf.App.ListenPort)
+		listener, err := net.Listen("tcp", ":"+viper.GetString("grpc_port"))
 		if err != nil {
 			errChan <- err
 			return
 		}
 
-		creds, err := credentials.NewServerTLSFromFile(conf.Conf.App.CertPath, conf.Conf.App.KeyPath)
+		creds, err := credentials.NewServerTLSFromFile(viper.GetString("cert_path"), viper.GetString("key_path"))
 		if err != nil {
 			errChan <- err
 			return
@@ -117,7 +118,7 @@ func main() {
 		)
 		pb.RegisterLogServiceServer(gRPCServer, svc)
 
-		log.Infof("Started LogServer on %s port", conf.Conf.App.ListenPort)
+		log.Infof("Started LogServer on %s port", viper.GetString("grpc_port"))
 
 		errChan <- gRPCServer.Serve(listener)
 	}()
@@ -127,7 +128,7 @@ func main() {
 		ctx, cancel := context.WithCancel(ctx)
 		defer cancel()
 
-		b, err := ioutil.ReadFile(conf.Conf.App.ClientCertPath)
+		b, err := ioutil.ReadFile(viper.GetString("client_cert_path"))
 		if err != nil {
 			errChan <- err
 			return
@@ -149,7 +150,7 @@ func main() {
 			grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)),
 			grpc.WithUnaryInterceptor(grpc_logrus.UnaryClientInterceptor(log.NewEntry(logger))),
 		}
-		err = pb.RegisterLogServiceHandlerFromEndpoint(ctx, gwmux, fmt.Sprintf("localhost:%s", conf.Conf.App.ListenPort), opts)
+		err = pb.RegisterLogServiceHandlerFromEndpoint(ctx, gwmux, fmt.Sprintf("localhost:%s", viper.GetString("grpc_port")), opts)
 		if err != nil {
 			errChan <- err
 			return
@@ -164,7 +165,7 @@ func main() {
 
 		srv := &http.Server{
 			Handler:      router,
-			Addr:         ":" + conf.Conf.App.GatewayPort,
+			Addr:         ":" + viper.GetString("gateway_port"),
 			WriteTimeout: 15 * time.Second,
 			ReadTimeout:  15 * time.Second,
 		}

@@ -7,13 +7,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"git.sgu.ru/ultramarine/logserver/conf"
-
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-ldap/ldap/v3"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -28,7 +27,7 @@ func parseToken(tokenString string) (user, error) {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 
-		return []byte(conf.Conf.App.JWTKey), nil
+		return []byte(viper.GetString("jwt_key")), nil
 	})
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
@@ -81,7 +80,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"username": loginInfo.Username})
-	tokenString, err := token.SignedString([]byte(conf.Conf.App.JWTKey))
+	tokenString, err := token.SignedString([]byte(viper.GetString("jwt_key")))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		log.Infof("Failed create token for user %s: %s", loginInfo.Username, err)
@@ -89,7 +88,6 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write([]byte(tokenString))
-
 }
 
 func authenticate(login, password string) error {
@@ -97,18 +95,18 @@ func authenticate(login, password string) error {
 		return errors.New("empty password")
 	}
 
-	l, err := ldap.Dial("tcp", conf.Conf.LDAP.Host)
+	l, err := ldap.Dial("tcp", viper.GetString("ldap_host"))
 	if err != nil {
 		return err
 	}
 	defer l.Close()
 
-	if err = l.Bind(conf.Conf.LDAP.BindDN, conf.Conf.LDAP.BindPass); err != nil {
+	if err = l.Bind(viper.GetString("ldap_bind_dn"), viper.GetString("ldap_bind_pass")); err != nil {
 		return fmt.Errorf("error authenticating admin user in LDAP: %s", err)
 	}
 
 	searchRequest := ldap.NewSearchRequest(
-		conf.Conf.LDAP.BaseDN,
+		viper.GetString("ldap_base_dn"),
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		"(&(sAMAccountName="+login+"))",
 		[]string{"cn"},
