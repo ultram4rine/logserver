@@ -57,7 +57,8 @@
             v-if="time === 'Period'"
             color="primary"
             v-on:click="periodForm = true"
-          >Choose time period</v-btn>
+            >Choose time period</v-btn
+          >
 
           <v-spacer></v-spacer>
 
@@ -65,12 +66,14 @@
             v-if="selection === 'DHCP Logs'"
             color="primary"
             v-on:click="insertDHCPLogs"
-          >Show logs</v-btn>
+            >Show logs</v-btn
+          >
           <v-btn
             v-else-if="selection === 'Switch Logs'"
             color="primary"
             v-on:click="insertSwitchLogs"
-          >Show logs</v-btn>
+            >Show logs</v-btn
+          >
         </v-toolbar>
       </v-card>
     </v-card>
@@ -99,7 +102,7 @@
         <v-toolbar>
           <v-toolbar-title>Choose period of time for logs</v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-btn icon @click="periodForm = false;">
+          <v-btn icon @click="periodForm = false">
             <v-icon>{{ mdiClose }}</v-icon>
           </v-btn>
         </v-toolbar>
@@ -117,12 +120,24 @@
                   min-width="290px"
                 >
                   <template v-slot:activator="{ on }">
-                    <v-text-field v-model="fromDate" label="From this date" readonly v-on="on"></v-text-field>
+                    <v-text-field
+                      v-model="fromDate"
+                      label="From this date"
+                      readonly
+                      v-on="on"
+                    ></v-text-field>
                   </template>
                   <v-date-picker v-model="fromDate" no-title scrollable>
                     <v-spacer></v-spacer>
-                    <v-btn text color="primary" @click="menuFromDate = false">Cancel</v-btn>
-                    <v-btn text color="primary" @click="$refs.menuFD.save(fromDate)">OK</v-btn>
+                    <v-btn text color="primary" @click="menuFromDate = false"
+                      >Cancel</v-btn
+                    >
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="$refs.menuFD.save(fromDate)"
+                      >OK</v-btn
+                    >
                   </v-date-picker>
                 </v-menu>
               </v-col>
@@ -140,7 +155,12 @@
                   min-width="290px"
                 >
                   <template v-slot:activator="{ on }">
-                    <v-text-field v-model="fromTime" label="From this time" readonly v-on="on"></v-text-field>
+                    <v-text-field
+                      v-model="fromTime"
+                      label="From this time"
+                      readonly
+                      v-on="on"
+                    ></v-text-field>
                   </template>
                   <v-time-picker
                     v-if="menuFromTime"
@@ -166,12 +186,24 @@
                   min-width="290px"
                 >
                   <template v-slot:activator="{ on }">
-                    <v-text-field v-model="toDate" label="To this date" readonly v-on="on"></v-text-field>
+                    <v-text-field
+                      v-model="toDate"
+                      label="To this date"
+                      readonly
+                      v-on="on"
+                    ></v-text-field>
                   </template>
                   <v-date-picker v-model="toDate" no-title scrollable>
                     <v-spacer></v-spacer>
-                    <v-btn text color="primary" @click="menuToDate = false">Cancel</v-btn>
-                    <v-btn text color="primary" @click="$refs.menuTD.save(toDate)">OK</v-btn>
+                    <v-btn text color="primary" @click="menuToDate = false"
+                      >Cancel</v-btn
+                    >
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="$refs.menuTD.save(toDate)"
+                      >OK</v-btn
+                    >
                   </v-date-picker>
                 </v-menu>
               </v-col>
@@ -189,7 +221,12 @@
                   min-width="290px"
                 >
                   <template v-slot:activator="{ on }">
-                    <v-text-field v-model="toTime" label="To this time" readonly v-on="on"></v-text-field>
+                    <v-text-field
+                      v-model="toTime"
+                      label="To this time"
+                      readonly
+                      v-on="on"
+                    ></v-text-field>
                   </template>
                   <v-time-picker
                     v-if="menuToTime"
