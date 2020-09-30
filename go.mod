@@ -6,7 +6,7 @@ require (
 	github.com/ClickHouse/clickhouse-go v1.4.3
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/go-ldap/ldap/v3 v3.2.3
 	github.com/golang/protobuf v1.4.2
@@ -25,8 +25,8 @@ require (
 	github.com/spf13/viper v1.7.1
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a // indirect
 	golang.org/x/net v0.0.0-20200927032502-5d4f70055728 // indirect
-	golang.org/x/sys v0.0.0-20200926100807-9d91bd62050c // indirect
-	google.golang.org/genproto v0.0.0-20200925023002-c2d885f95484
+	golang.org/x/sys v0.0.0-20200929083018-4d22bbb62b3c // indirect
+	google.golang.org/genproto v0.0.0-20200929141702-51c3e5b607fe
 	google.golang.org/grpc v1.32.0
 	google.golang.org/grpc/examples v0.0.0-20200917190803-0f7e218c2cf4 // indirect
 	google.golang.org/protobuf v1.25.0
