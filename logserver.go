@@ -162,6 +162,7 @@ func main() {
 		router.HandleFunc("/api/auth", auth.Handler)
 		router.PathPrefix("/api").Handler(gwmux)
 		router.PathPrefix("/").Handler(spa)
+		router.Use(auth.TwoCookieAuthMiddleware)
 
 		srv := &http.Server{
 			Handler:      router,

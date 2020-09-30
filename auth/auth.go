@@ -6,8 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
+	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/go-ldap/ldap/v3"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
@@ -17,12 +19,29 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type user struct {
-	Username string
+type claims struct {
+	jwt.StandardClaims
+	Username string `json:"username"`
 }
 
-func parseToken(tokenString string) (user, error) {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+func createToken(username, password string) (string, error) {
+	if err := authenticate(username, password); err != nil {
+		return "", err
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &claims{
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: jwt.At(time.Now().Add(time.Minute * 30)),
+			IssuedAt:  jwt.At(time.Now()),
+		},
+		Username: username,
+	})
+
+	return token.SignedString([]byte(viper.GetString("jwt_key")))
+}
+
+func parseToken(tokenString string) (string, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
@@ -30,11 +49,11 @@ func parseToken(tokenString string) (user, error) {
 		return []byte(viper.GetString("jwt_key")), nil
 	})
 
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		return user{Username: fmt.Sprintf("%v", claims["username"])}, nil
+	if customClaims, ok := token.Claims.(*claims); ok && token.Valid {
+		return customClaims.Username, nil
 	}
 
-	return user{}, err
+	return "", err
 }
 
 // LDAPAuthFunc is used by a middleware to authenticate requests.
@@ -45,17 +64,17 @@ func LDAPAuthFunc(ctx context.Context) (context.Context, error) {
 		return nil, err
 	}
 
-	tokenInfo, err := parseToken(token)
+	username, err := parseToken(token)
 	if err != nil {
 		log.Infof("Failed to parse token: %s", err)
 		return nil, status.Errorf(codes.Unauthenticated, "invalid auth token: %v", err)
 	}
 
-	grpc_ctxtags.Extract(ctx).Set("auth.sub", tokenInfo.Username)
+	grpc_ctxtags.Extract(ctx).Set("auth.sub", username)
 
 	type ctxKey string
 	k := ctxKey("tokenInfo")
-	newCtx := context.WithValue(ctx, k, tokenInfo)
+	newCtx := context.WithValue(ctx, k, username)
 
 	return newCtx, nil
 }
@@ -73,21 +92,44 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := authenticate(loginInfo.Username, loginInfo.Password); err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
-		log.Infof("Failed authenticate user %s: %s", loginInfo.Username, err)
-		return
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"username": loginInfo.Username})
-	tokenString, err := token.SignedString([]byte(viper.GetString("jwt_key")))
+	token, err := createToken(loginInfo.Username, loginInfo.Password)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		log.Infof("Failed create token for user %s: %s", loginInfo.Username, err)
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		log.Infof("Failed to create token for %s: %s", loginInfo.Username, err)
 		return
 	}
 
-	w.Write([]byte(tokenString))
+	tokenParts := strings.Split(token, ".")
+
+	http.SetCookie(w, &http.Cookie{
+		Name:   "info",
+		Value:  fmt.Sprintf("%s.%s", tokenParts[0], tokenParts[1]),
+		Secure: false,
+	})
+	http.SetCookie(w, &http.Cookie{
+		Name:     "sig",
+		Value:    tokenParts[2],
+		Secure:   false,
+		HttpOnly: true,
+	})
+
+	w.Write([]byte(fmt.Sprintf("%s.%s", tokenParts[0], tokenParts[1])))
+}
+
+// TwoCookieAuthMiddleware used for SPA auth.
+func TwoCookieAuthMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Authorization") != "" {
+			next.ServeHTTP(w, r)
+		} else {
+			infoPart, _ := r.Cookie("info")
+			sigPart, _ := r.Cookie("sig")
+
+			r.Header.Set("Authorization", fmt.Sprintf("Bearer %s.%s", infoPart.Value, sigPart.Value))
+
+			next.ServeHTTP(w, r)
+		}
+	})
 }
 
 func authenticate(login, password string) error {
