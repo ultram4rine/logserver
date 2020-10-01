@@ -122,8 +122,16 @@ func TwoCookieAuthMiddleware(next http.Handler) http.Handler {
 		if r.Header.Get("Authorization") != "" {
 			next.ServeHTTP(w, r)
 		} else {
-			infoPart, _ := r.Cookie("info")
-			sigPart, _ := r.Cookie("sig")
+			infoPart, err := r.Cookie("info")
+			if err != nil {
+				next.ServeHTTP(w, r)
+				return
+			}
+			sigPart, err := r.Cookie("sig")
+			if err != nil {
+				next.ServeHTTP(w, r)
+				return
+			}
 
 			r.Header.Set("Authorization", fmt.Sprintf("Bearer %s.%s", infoPart.Value, sigPart.Value))
 
