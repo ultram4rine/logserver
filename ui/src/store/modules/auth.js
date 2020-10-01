@@ -9,19 +9,28 @@ import {
   AUTH_ERROR,
 } from "@/store/actions";
 
+function getCookie(name) {
+  let matches = document.cookie.match(
+    new RegExp(
+      "(?:^|; )" +
+        name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, "\\$1") +
+        "=([^;]*)"
+    )
+  );
+  return matches ? decodeURIComponent(matches[1]) : undefined;
+}
+
 const state = {
-  token:
-    document.cookie.replace(
-      /(?:(?:^|.*;\s*)info\s*=\s*([^;]*).*$)|^.*$/,
-      "$1"
-    ) || "",
+  token: getCookie("info"),
   status: "",
   hasLoadedOnce: false,
 };
 
+console.log(state.token, document.cookie);
+
 const getters = {
   isAuthenticated: (state) => {
-    return !!state.token;
+    return state.token !== undefined;
   },
   authStatus: (state) => state.status,
 };
