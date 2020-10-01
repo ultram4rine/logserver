@@ -30,15 +30,18 @@ var (
 	blockKey   []byte
 	infoCookie *securecookie.SecureCookie
 	sigCookie  *securecookie.SecureCookie
+	tls        bool
 )
 
 // InitKeysAndCookies initializes keys and cookies.
-func InitKeysAndCookies() {
+func InitKeysAndCookies(TLS *bool) {
 	hashKey = []byte(viper.GetString("hash_key"))
 	blockKey = []byte(viper.GetString("block_key"))
 
 	infoCookie = securecookie.New(hashKey, blockKey)
 	sigCookie = securecookie.New(hashKey, blockKey)
+
+	tls = *TLS
 }
 
 func createToken(username, password string) (string, error) {
@@ -48,7 +51,7 @@ func createToken(username, password string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &claims{
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: jwt.At(time.Now().Add(time.Minute * 30)),
+			ExpiresAt: jwt.At(time.Now().Add(time.Hour * 24 * 30)),
 			IssuedAt:  jwt.At(time.Now()),
 		},
 		Username: username,
@@ -134,18 +137,35 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "info",
 		Value:    infoEncoded,
-		Secure:   false,
+		Secure:   tls,
 		SameSite: 3,
+		MaxAge:   86400 * 30,
 	})
 	http.SetCookie(w, &http.Cookie{
 		Name:     "sig",
 		Value:    sigEncoded,
-		Secure:   false,
+		Secure:   tls,
 		SameSite: 3,
 		HttpOnly: true,
 	})
+}
 
-	w.Write([]byte(fmt.Sprintf("%s.%s", tokenParts[0], tokenParts[1])))
+// LogoutHandler handles logout button.
+func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "info",
+		Value:    "",
+		Secure:   tls,
+		SameSite: 3,
+		MaxAge:   86400 * 30,
+	})
+	http.SetCookie(w, &http.Cookie{
+		Name:     "sig",
+		Value:    "",
+		Secure:   tls,
+		SameSite: 3,
+		HttpOnly: true,
+	})
 }
 
 // TwoCookieAuthMiddleware used for SPA auth.

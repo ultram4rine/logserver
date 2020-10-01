@@ -40,6 +40,7 @@ var (
 	confName               = kingpin.Flag("conf", "Path to config file.").Short('c').Default("logserver.conf").String()
 	installWEBDependencies = kingpin.Flag("install-spa-dependencies", "Install WEB app dependencies.").Short('i').Bool()
 	buildSPA               = kingpin.Flag("build-spa", "Build WEB app.").Short('b').Bool()
+	TLS                    = kingpin.Flag("tsl", "If used TLS cookies will have Secure flag").Short('s').Bool()
 )
 
 func init() {
@@ -74,7 +75,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	auth.InitKeysAndCookies()
+	auth.InitKeysAndCookies(*TLS)
 
 	ctx := context.Background()
 
@@ -162,6 +163,7 @@ func main() {
 
 		router := mux.NewRouter()
 		router.HandleFunc("/api/auth", auth.Handler)
+		router.HandleFunc("/api/logout", auth.LogoutHandler)
 		router.PathPrefix("/api").Handler(gwmux)
 		router.PathPrefix("/").Handler(spa)
 		router.Use(auth.TwoCookieAuthMiddleware)
