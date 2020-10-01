@@ -34,14 +34,14 @@ var (
 )
 
 // InitKeysAndCookies initializes keys and cookies.
-func InitKeysAndCookies(TLS *bool) {
+func InitKeysAndCookies(TLS bool) {
 	hashKey = []byte(viper.GetString("hash_key"))
 	blockKey = []byte(viper.GetString("block_key"))
 
 	infoCookie = securecookie.New(hashKey, blockKey)
 	sigCookie = securecookie.New(hashKey, blockKey)
 
-	tls = *TLS
+	tls = TLS
 }
 
 func createToken(username, password string) (string, error) {
