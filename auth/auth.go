@@ -11,6 +11,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/go-ldap/ldap/v3"
+	"github.com/gorilla/securecookie"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	log "github.com/sirupsen/logrus"
@@ -79,6 +80,14 @@ func LDAPAuthFunc(ctx context.Context) (context.Context, error) {
 	return newCtx, nil
 }
 
+var (
+	hashKey  = []byte(viper.GetString("session_key"))
+	blockKey = []byte(viper.GetString("encryption_key"))
+
+	infoCookie = securecookie.New(hashKey, blockKey)
+	sigCookie  = securecookie.New(hashKey, blockKey)
+)
+
 // Handler handles auth endpoint.
 func Handler(w http.ResponseWriter, r *http.Request) {
 	var loginInfo struct {
@@ -101,14 +110,27 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	tokenParts := strings.Split(token, ".")
 
+	infoEncoded, err := infoCookie.Encode("info", fmt.Sprintf("%s.%s", tokenParts[0], tokenParts[1]))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Infof("Failed to encode info part of token: %s", err)
+		return
+	}
+	sigEncoded, err := sigCookie.Encode("sig", tokenParts[2])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Infof("Failed to encode sig part of token: %s", err)
+		return
+	}
+
 	http.SetCookie(w, &http.Cookie{
 		Name:   "info",
-		Value:  fmt.Sprintf("%s.%s", tokenParts[0], tokenParts[1]),
+		Value:  infoEncoded,
 		Secure: false,
 	})
 	http.SetCookie(w, &http.Cookie{
 		Name:     "sig",
-		Value:    tokenParts[2],
+		Value:    sigEncoded,
 		Secure:   false,
 		HttpOnly: true,
 	})
@@ -133,7 +155,23 @@ func TwoCookieAuthMiddleware(next http.Handler) http.Handler {
 				return
 			}
 
-			r.Header.Set("Authorization", fmt.Sprintf("Bearer %s.%s", infoPart.Value, sigPart.Value))
+			var (
+				infoStr string
+				sigStr  string
+			)
+
+			if err = infoCookie.Decode("info", infoPart.Value, &infoStr); err != nil {
+				log.Warnf("Failed to decode info cookie: %s", err)
+				next.ServeHTTP(w, r)
+				return
+			}
+			if err = sigCookie.Decode("info", sigPart.Value, &sigStr); err != nil {
+				log.Warnf("Failed to decode sig cookie: %s", err)
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			r.Header.Set("Authorization", fmt.Sprintf("Bearer %s.%s", infoStr, sigStr))
 
 			next.ServeHTTP(w, r)
 		}
