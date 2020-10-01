@@ -10,8 +10,9 @@ import (
 // GetConfig function parse a config file to viper.
 func GetConfig(confName string) error {
 	viper.SetConfigName(confName)
-	viper.AddConfigPath("/etc/logserver/")
 	viper.AddConfigPath(".")
+	viper.AddConfigPath("/etc/logserver/")
+
 	if err := viper.ReadInConfig(); err != nil {
 		log.Warnf("Failed to read config file: %s", err)
 	}
@@ -35,6 +36,13 @@ func GetConfig(confName string) error {
 	if err := viper.BindEnv("jwt_key"); err != nil {
 		return errors.New("Failed to bind jwt_key ENV variable")
 	}
+	if err := viper.BindEnv("session_key"); err != nil {
+		return errors.New("Failed to bind session_key ENV variable")
+	}
+	if err := viper.BindEnv("encryption_key"); err != nil {
+		return errors.New("Failed to bind encryption_key ENV variable")
+	}
+
 	if err := viper.BindEnv("db_host"); err != nil {
 		return errors.New("Failed to bind db_host ENV variable")
 	}
@@ -47,6 +55,7 @@ func GetConfig(confName string) error {
 	if err := viper.BindEnv("db_pass"); err != nil {
 		return errors.New("Failed to bind db_pass ENV variable")
 	}
+
 	if err := viper.BindEnv("ldap_host"); err != nil {
 		return errors.New("Failed to bind ldap_host ENV variable")
 	}
