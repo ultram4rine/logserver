@@ -10,7 +10,11 @@ import {
 } from "@/store/actions";
 
 const state = {
-  token: localStorage.getItem("user-token") || "",
+  token:
+    document.cookie.replace(
+      /(?:(?:^|.*;\s*)info\s*=\s*([^;]*).*$)|^.*$/,
+      "$1"
+    ) || "",
   status: "",
   hasLoadedOnce: false,
 };
@@ -29,22 +33,22 @@ const actions = {
       axios
         .post(`${config.apiURL}/auth`, user)
         .then((resp) => {
-          localStorage.setItem("user-token", resp.data);
           context.commit(AUTH_SUCCESS, resp);
           resolve(resp);
         })
         .catch((err) => {
           context.commit(AUTH_ERROR, err);
-          delete axios.defaults.headers.common["Authorization"];
-          localStorage.removeItem("user-token");
           reject(err);
         });
     });
   },
   [AUTH_LOGOUT]: (context) => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       context.commit(AUTH_LOGOUT);
-      localStorage.removeItem("user-token");
+      axios.post(`${config.apiURL}/logout`).catch((err) => {
+        context.commit(AUTH_ERROR, err);
+        reject(err);
+      });
       resolve();
     });
   },
