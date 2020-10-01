@@ -74,6 +74,20 @@
             v-on:click="insertSwitchLogs"
             >Show logs</v-btn
           >
+
+          <v-spacer></v-spacer>
+
+          <v-menu bottom left offset-y>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn icon v-bind="attrs" v-on="on">
+                <v-icon>{{ mdiDotsVertical }}</v-icon>
+              </v-btn>
+            </template>
+
+            <v-list>
+              <v-btn text small v-on:click="logout">Logout</v-btn>
+            </v-list>
+          </v-menu>
         </v-toolbar>
       </v-card>
     </v-card>
@@ -252,7 +266,7 @@
 </template>
 
 <script>
-import { mdiCalendar, mdiClockOutline, mdiClose } from "@mdi/js";
+import { mdiDotsVertical, mdiClose } from "@mdi/js";
 import { ref, computed, watch } from "@vue/composition-api";
 
 import useLogs from "@/helpers/useLogs";
@@ -432,8 +446,7 @@ export default {
 
       similars,
 
-      mdiCalendar,
-      mdiClockOutline,
+      mdiDotsVertical,
       mdiClose,
     };
   },
