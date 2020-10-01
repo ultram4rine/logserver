@@ -132,14 +132,16 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:   "info",
-		Value:  infoEncoded,
-		Secure: false,
+		Name:     "info",
+		Value:    infoEncoded,
+		Secure:   false,
+		SameSite: 3,
 	})
 	http.SetCookie(w, &http.Cookie{
 		Name:     "sig",
 		Value:    sigEncoded,
 		Secure:   false,
+		SameSite: 3,
 		HttpOnly: true,
 	})
 
