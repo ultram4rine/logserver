@@ -25,6 +25,22 @@ type claims struct {
 	Username string `json:"username"`
 }
 
+var (
+	hashKey    []byte
+	blockKey   []byte
+	infoCookie *securecookie.SecureCookie
+	sigCookie  *securecookie.SecureCookie
+)
+
+// InitKeysAndCookies initializes keys and cookies.
+func InitKeysAndCookies() {
+	hashKey = []byte(viper.GetString("hash_key"))
+	blockKey = []byte(viper.GetString("block_key"))
+
+	infoCookie = securecookie.New(hashKey, blockKey)
+	sigCookie = securecookie.New(hashKey, blockKey)
+}
+
 func createToken(username, password string) (string, error) {
 	if err := authenticate(username, password); err != nil {
 		return "", err
@@ -80,14 +96,6 @@ func LDAPAuthFunc(ctx context.Context) (context.Context, error) {
 	return newCtx, nil
 }
 
-var (
-	hashKey  = []byte(viper.GetString("session_key"))
-	blockKey = []byte(viper.GetString("encryption_key"))
-
-	infoCookie = securecookie.New(hashKey, blockKey)
-	sigCookie  = securecookie.New(hashKey, blockKey)
-)
-
 // Handler handles auth endpoint.
 func Handler(w http.ResponseWriter, r *http.Request) {
 	var loginInfo struct {
@@ -113,13 +121,13 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	infoEncoded, err := infoCookie.Encode("info", fmt.Sprintf("%s.%s", tokenParts[0], tokenParts[1]))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		log.Infof("Failed to encode info part of token: %s", err)
+		log.Warnf("Failed to encode info part of token: %s", err)
 		return
 	}
 	sigEncoded, err := sigCookie.Encode("sig", tokenParts[2])
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		log.Infof("Failed to encode sig part of token: %s", err)
+		log.Warnf("Failed to encode sig part of token: %s", err)
 		return
 	}
 
@@ -165,7 +173,7 @@ func TwoCookieAuthMiddleware(next http.Handler) http.Handler {
 				next.ServeHTTP(w, r)
 				return
 			}
-			if err = sigCookie.Decode("info", sigPart.Value, &sigStr); err != nil {
+			if err = sigCookie.Decode("sig", sigPart.Value, &sigStr); err != nil {
 				log.Warnf("Failed to decode sig cookie: %s", err)
 				next.ServeHTTP(w, r)
 				return

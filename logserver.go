@@ -74,6 +74,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	auth.InitKeysAndCookies()
+
 	ctx := context.Background()
 
 	db, err := sqlx.ConnectContext(ctx, "clickhouse", fmt.Sprintf("%s?username=%s&password=%s&database=%s", viper.GetString("db_host"), viper.GetString("db_user"), viper.GetString("db_pass"), viper.GetString("db_name")))
