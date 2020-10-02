@@ -191,12 +191,10 @@ func TwoCookieAuthMiddleware(next http.Handler) http.Handler {
 			)
 
 			if err = infoCookie.Decode("info", infoPart.Value, &infoStr); err != nil {
-				log.Warnf("Failed to decode info cookie: %s", err)
 				next.ServeHTTP(w, r)
 				return
 			}
 			if err = sigCookie.Decode("sig", sigPart.Value, &sigStr); err != nil {
-				log.Warnf("Failed to decode sig cookie: %s", err)
 				next.ServeHTTP(w, r)
 				return
 			}
