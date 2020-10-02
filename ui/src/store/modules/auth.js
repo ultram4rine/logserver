@@ -1,38 +1,16 @@
 import axios from "axios";
+import Cookies from "js-cookie";
 
-import config from "@/config/config";
-
-import {
-  AUTH_LOGIN,
-  AUTH_LOGOUT,
-  AUTH_SUCCESS,
-  AUTH_ERROR,
-} from "@/store/actions";
-
-function getCookie(name) {
-  let matches = document.cookie.match(
-    new RegExp(
-      "(?:^|; )" +
-        name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, "\\$1") +
-        "=([^;]*)"
-    )
-  );
-  return matches ? decodeURIComponent(matches[1]) : undefined;
-}
+import { AUTH_LOGIN, AUTH_LOGOUT } from "@/store/actions";
 
 const state = {
-  token: getCookie("info"),
-  status: "",
-  hasLoadedOnce: false,
+  token: Cookies.get("info"),
 };
-
-console.log(state.token, document.cookie);
 
 const getters = {
   isAuthenticated: (state) => {
-    return state.token !== undefined;
+    return !!state.token;
   },
-  authStatus: (state) => state.status,
 };
 
 const actions = {
@@ -40,13 +18,12 @@ const actions = {
     return new Promise((resolve, reject) => {
       context.commit(AUTH_LOGIN);
       axios
-        .post(`${config.apiURL}/auth`, user)
+        .post("/auth", user)
         .then((resp) => {
-          context.commit(AUTH_SUCCESS, resp);
+          state.token = Cookies.get("info");
           resolve(resp);
         })
         .catch((err) => {
-          context.commit(AUTH_ERROR, err);
           reject(err);
         });
     });
@@ -54,8 +31,7 @@ const actions = {
   [AUTH_LOGOUT]: (context) => {
     return new Promise((resolve, reject) => {
       context.commit(AUTH_LOGOUT);
-      axios.post(`${config.apiURL}/logout`).catch((err) => {
-        context.commit(AUTH_ERROR, err);
+      axios.post("/logout").catch((err) => {
         reject(err);
       });
       resolve();
@@ -64,18 +40,6 @@ const actions = {
 };
 
 const mutations = {
-  [AUTH_LOGIN]: (state) => {
-    state.status = "loading";
-  },
-  [AUTH_SUCCESS]: (state, resp) => {
-    state.status = "success";
-    state.token = resp.data;
-    state.hasLoadedOnce = true;
-  },
-  [AUTH_ERROR]: (state) => {
-    state.status = "error";
-    state.hasLoadedOnce = true;
-  },
   [AUTH_LOGOUT]: (state) => {
     state.token = "";
   },
