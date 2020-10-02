@@ -162,9 +162,9 @@ func main() {
 		spa := spaHandler{staticPath: "ui/build", indexPath: "index.html"}
 
 		router := mux.NewRouter()
-		router.HandleFunc("/api/auth", auth.Handler)
-		router.HandleFunc("/api/logout", auth.LogoutHandler)
 		router.PathPrefix("/api").Handler(gwmux)
+		router.HandleFunc("/auth", auth.Handler)
+		router.HandleFunc("/logout", auth.LogoutHandler)
 		router.PathPrefix("/").Handler(spa)
 		router.Use(auth.TwoCookieAuthMiddleware)
 
