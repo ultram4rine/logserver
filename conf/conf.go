@@ -36,11 +36,11 @@ func GetConfig(confName string) error {
 	if err := viper.BindEnv("jwt_key"); err != nil {
 		return errors.New("Failed to bind jwt_key ENV variable")
 	}
-	if err := viper.BindEnv("session_key"); err != nil {
-		return errors.New("Failed to bind session_key ENV variable")
+	if err := viper.BindEnv("hash_key"); err != nil {
+		return errors.New("Failed to bind hash_key ENV variable")
 	}
-	if err := viper.BindEnv("encryption_key"); err != nil {
-		return errors.New("Failed to bind encryption_key ENV variable")
+	if err := viper.BindEnv("block_key"); err != nil {
+		return errors.New("Failed to bind block_key ENV variable")
 	}
 
 	if err := viper.BindEnv("db_host"); err != nil {
