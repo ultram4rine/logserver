@@ -1,8 +1,8 @@
 {
-  "name": "log-web-client",
-  "version": "0.1.0",
+  "name": "logserver-web-client",
+  "version": "1.0.0",
   "private": true,
-  "description": "LogViewer web app",
+  "description": "LogServer WEB app",
   "author": "ultram4rine",
   "scripts": {
     "serve": "vue-cli-service serve",
