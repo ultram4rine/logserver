@@ -28,6 +28,8 @@ export default function () {
       value: "ts_remote",
     },
     { text: "Message", value: "message" },
+    { text: "Facility", value: "facility" },
+    { text: "Severity", value: "severity" },
   ];
 
   const getDHCPLogs = async (mac, from, to) => {
