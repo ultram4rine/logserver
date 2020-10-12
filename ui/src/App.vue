@@ -12,9 +12,7 @@ import { AUTH_LOGOUT } from "./store/actions";
 export default {
   name: "App",
 
-  data() {
-    return {};
-  },
+  setup() {},
 
   created() {
     axios.interceptors.response.use(
