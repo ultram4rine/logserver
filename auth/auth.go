@@ -9,13 +9,14 @@ import (
 	"strings"
 	"time"
 
+	"git.sgu.ru/ultramarine/logserver/conf"
+
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/go-ldap/ldap/v3"
 	"github.com/gorilla/securecookie"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -35,8 +36,8 @@ var (
 
 // InitKeysAndCookies initializes keys and cookies.
 func InitKeysAndCookies(TLS bool) {
-	hashKey = []byte(viper.GetString("hash_key"))
-	blockKey = []byte(viper.GetString("block_key"))
+	hashKey = []byte(conf.Config.HashKey)
+	blockKey = []byte(conf.Config.BlockKey)
 
 	infoCookie = securecookie.New(hashKey, blockKey)
 	sigCookie = securecookie.New(hashKey, blockKey)
@@ -57,7 +58,7 @@ func createToken(username, password string) (string, error) {
 		Username: username,
 	})
 
-	return token.SignedString([]byte(viper.GetString("jwt_key")))
+	return token.SignedString([]byte(conf.Config.JWTKey))
 }
 
 func parseToken(tokenString string) (string, error) {
@@ -66,7 +67,7 @@ func parseToken(tokenString string) (string, error) {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 
-		return []byte(viper.GetString("jwt_key")), nil
+		return []byte(conf.Config.JWTKey), nil
 	})
 
 	if customClaims, ok := token.Claims.(*claims); ok && token.Valid {
@@ -211,18 +212,18 @@ func authenticate(login, password string) error {
 		return errors.New("empty password")
 	}
 
-	l, err := ldap.Dial("tcp", viper.GetString("ldap_host"))
+	l, err := ldap.Dial("tcp", conf.Config.LDAPHost)
 	if err != nil {
 		return err
 	}
 	defer l.Close()
 
-	if err = l.Bind(viper.GetString("ldap_bind_dn"), viper.GetString("ldap_bind_pass")); err != nil {
+	if err = l.Bind(conf.Config.LDAPBindDN, conf.Config.LDAPBindPass); err != nil {
 		return fmt.Errorf("error authenticating admin user in LDAP: %s", err)
 	}
 
 	searchRequest := ldap.NewSearchRequest(
-		viper.GetString("ldap_base_dn"),
+		conf.Config.LDAPBaseDN,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		"(&(sAMAccountName="+login+"))",
 		[]string{"cn"},

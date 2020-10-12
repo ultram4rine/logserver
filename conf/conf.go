@@ -1,17 +1,36 @@
 package conf
 
 import (
-	"errors"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
-// GetConfig function parse a config file to viper.
-func GetConfig(confName string) error {
+// Config is a configuration.
+var Config struct {
+	CertPath       string `mapstructure:"cert_path"`
+	KeyPath        string `mapstructure:"key_path"`
+	ClientCertPath string `mapstructure:"client_cert_path"`
+	GRPCPort       string `mapstructure:"grpc_port"`
+	GatewayPort    string `mapstructure:"gateway_port"`
+	JWTKey         string `mapstructure:"jwt_key"`
+	HashKey        string `mapstructure:"hash_key"`
+	BlockKey       string `mapstructure:"block_key"`
+
+	DBHost string `mapstructure:"db_host"`
+	DBName string `mapstructure:"db_name"`
+	DBUser string `mapstructure:"db_user"`
+	DBPass string `mapstructure:"db_pass"`
+
+	LDAPHost     string `mapstructure:"ldap_host"`
+	LDAPBindDN   string `mapstructure:"ldap_bind_dn"`
+	LDAPBindPass string `mapstructure:"ldap_bind_pass"`
+	LDAPBaseDN   string `mapstructure:"ldap_base_dn"`
+}
+
+// Load parses the config from file or from ENV variables s into a Config.
+func Load(confName string) error {
 	viper.SetConfigName(confName)
 	viper.AddConfigPath(".")
-	viper.AddConfigPath("/etc/logserver/")
 
 	if err := viper.ReadInConfig(); err != nil {
 		log.Warnf("Failed to read config file: %s", err)
@@ -19,54 +38,58 @@ func GetConfig(confName string) error {
 
 	viper.SetEnvPrefix("logserver")
 	if err := viper.BindEnv("cert_path"); err != nil {
-		return errors.New("Failed to bind cert_path ENV variable")
+		return err
 	}
 	if err := viper.BindEnv("key_path"); err != nil {
-		return errors.New("Failed to bind key_path ENV variable")
+		return err
 	}
 	if err := viper.BindEnv("client_cert_path"); err != nil {
-		return errors.New("Failed to bind client_cert_path ENV variable")
+		return err
 	}
 	if err := viper.BindEnv("grpc_port"); err != nil {
-		return errors.New("Failed to bind grpc_port ENV variable")
+		return err
 	}
 	if err := viper.BindEnv("gateway_port"); err != nil {
-		return errors.New("Failed to bind gateway_port ENV variable")
+		return err
 	}
 	if err := viper.BindEnv("jwt_key"); err != nil {
-		return errors.New("Failed to bind jwt_key ENV variable")
+		return err
 	}
 	if err := viper.BindEnv("hash_key"); err != nil {
-		return errors.New("Failed to bind hash_key ENV variable")
+		return err
 	}
 	if err := viper.BindEnv("block_key"); err != nil {
-		return errors.New("Failed to bind block_key ENV variable")
+		return err
 	}
 
 	if err := viper.BindEnv("db_host"); err != nil {
-		return errors.New("Failed to bind db_host ENV variable")
+		return err
 	}
 	if err := viper.BindEnv("db_name"); err != nil {
-		return errors.New("Failed to bind db_name ENV variable")
+		return err
 	}
 	if err := viper.BindEnv("db_user"); err != nil {
-		return errors.New("Failed to bind db_user ENV variable")
+		return err
 	}
 	if err := viper.BindEnv("db_pass"); err != nil {
-		return errors.New("Failed to bind db_pass ENV variable")
+		return err
 	}
 
 	if err := viper.BindEnv("ldap_host"); err != nil {
-		return errors.New("Failed to bind ldap_host ENV variable")
+		return err
 	}
 	if err := viper.BindEnv("ldap_bind_dn"); err != nil {
-		return errors.New("Failed to bind ldap_bind_dn ENV variable")
+		return err
 	}
 	if err := viper.BindEnv("ldap_bind_pass"); err != nil {
-		return errors.New("Failed to bind ldap_bind_pass ENV variable")
+		return err
 	}
 	if err := viper.BindEnv("ldap_base_dn"); err != nil {
-		return errors.New("Failed to bind ldap_base_dn ENV variable")
+		return err
+	}
+
+	if err := viper.Unmarshal(&Config); err != nil {
+		return err
 	}
 
 	return nil

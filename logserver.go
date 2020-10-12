@@ -30,7 +30,6 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -71,15 +70,15 @@ func init() {
 }
 
 func main() {
-	if err := conf.GetConfig(*confName); err != nil {
-		log.Fatal(err)
+	if err := conf.Load(*confName); err != nil {
+		log.Fatalf("Failed to load configuration: %s", err)
 	}
 
 	auth.InitKeysAndCookies(*tlsEnabled)
 
 	ctx := context.Background()
 
-	db, err := sqlx.ConnectContext(ctx, "clickhouse", fmt.Sprintf("%s?username=%s&password=%s&database=%s", viper.GetString("db_host"), viper.GetString("db_user"), viper.GetString("db_pass"), viper.GetString("db_name")))
+	db, err := sqlx.ConnectContext(ctx, "clickhouse", fmt.Sprintf("%s?username=%s&password=%s&database=%s", conf.Config.DBHost, conf.Config.DBUser, conf.Config.DBPass, conf.Config.DBName))
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
@@ -93,13 +92,13 @@ func main() {
 	)
 
 	go func() {
-		listener, err := net.Listen("tcp", ":"+viper.GetString("grpc_port"))
+		listener, err := net.Listen("tcp", ":"+conf.Config.GRPCPort)
 		if err != nil {
 			errChan <- err
 			return
 		}
 
-		creds, err := credentials.NewServerTLSFromFile(viper.GetString("cert_path"), viper.GetString("key_path"))
+		creds, err := credentials.NewServerTLSFromFile(conf.Config.CertPath, conf.Config.KeyPath)
 		if err != nil {
 			errChan <- err
 			return
@@ -121,7 +120,7 @@ func main() {
 		)
 		pb.RegisterLogServiceServer(gRPCServer, svc)
 
-		log.Infof("Started LogServer on %s port", viper.GetString("grpc_port"))
+		log.Infof("Started LogServer on %s port", conf.Config.GRPCPort)
 
 		errChan <- gRPCServer.Serve(listener)
 	}()
@@ -131,7 +130,7 @@ func main() {
 		ctx, cancel := context.WithCancel(ctx)
 		defer cancel()
 
-		b, err := ioutil.ReadFile(viper.GetString("client_cert_path"))
+		b, err := ioutil.ReadFile(conf.Config.ClientCertPath)
 		if err != nil {
 			errChan <- err
 			return
@@ -153,7 +152,7 @@ func main() {
 			grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)),
 			grpc.WithUnaryInterceptor(grpc_logrus.UnaryClientInterceptor(log.NewEntry(logger))),
 		}
-		err = pb.RegisterLogServiceHandlerFromEndpoint(ctx, gwmux, fmt.Sprintf("localhost:%s", viper.GetString("grpc_port")), opts)
+		err = pb.RegisterLogServiceHandlerFromEndpoint(ctx, gwmux, fmt.Sprintf("localhost:%s", conf.Config.GRPCPort), opts)
 		if err != nil {
 			errChan <- err
 			return
@@ -170,7 +169,7 @@ func main() {
 
 		srv := &http.Server{
 			Handler:      router,
-			Addr:         ":" + viper.GetString("gateway_port"),
+			Addr:         ":" + conf.Config.GatewayPort,
 			WriteTimeout: 15 * time.Second,
 			ReadTimeout:  15 * time.Second,
 		}
@@ -201,8 +200,7 @@ func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	path = filepath.Join(h.staticPath, path)
 
-	_, err = os.Stat(path)
-	if os.IsNotExist(err) {
+	if _, err = os.Stat(path); os.IsNotExist(err) {
 		http.ServeFile(w, r, filepath.Join(h.staticPath, h.indexPath))
 		return
 	} else if err != nil {
