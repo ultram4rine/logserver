@@ -53,6 +53,8 @@ message SwitchLog {
     string ts_local = 1;
     string ts_remote = 2;
     string message = 3;
+    string facility = 4;
+    string severity = 5;
 }
 
 message SwitchLogsResponse {

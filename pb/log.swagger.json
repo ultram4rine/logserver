@@ -191,6 +191,12 @@
         },
         "message": {
           "type": "string"
+        },
+        "facility": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "string"
         }
       }
     },
