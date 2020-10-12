@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"net"
 	"time"
 
@@ -9,6 +10,44 @@ import (
 
 	"github.com/jmoiron/sqlx"
 )
+
+var facilityMap = map[uint8]string{
+	0:  "kern",
+	1:  "user",
+	2:  "mail",
+	3:  "daemon",
+	4:  "auth",
+	5:  "syslog",
+	6:  "lpr",
+	7:  "news",
+	8:  "uucp",
+	9:  "cron",
+	10: "auth",
+	11: "ftp",
+	12: "ntp",
+	13: "audit",
+	14: "alert",
+	15: "cron",
+	16: "local0",
+	17: "local1",
+	18: "local2",
+	19: "local3",
+	20: "local4",
+	21: "local5",
+	22: "local6",
+	23: "local7",
+}
+
+var severityMap = map[uint8]string{
+	0: "Emergency",
+	1: "Alert",
+	2: "Critical",
+	3: "Error",
+	4: "Warning",
+	5: "Notice",
+	6: "Informational",
+	7: "Debug",
+}
 
 // Service interface.
 type Service interface {
@@ -64,7 +103,7 @@ func (s LogService) GetDHCPLogs(ctx context.Context, req *pb.DHCPLogsRequest) (*
 func (s LogService) GetSwitchLogs(ctx context.Context, req *pb.SwitchLogsRequest) (*pb.SwitchLogsResponse, error) {
 	timeFrom, timeTo := parseTime(req.From, req.To)
 
-	rows, err := s.DB.QueryxContext(ctx, "SELECT ts_local, ts_remote, log_msg FROM switchlogs WHERE sw_name = ? AND ts_local > ? AND ts_local < ? ORDER BY ts_local DESC", req.Name, timeFrom, timeTo)
+	rows, err := s.DB.QueryxContext(ctx, "SELECT ts_local, ts_remote, log_msg, facility, severity, priority FROM switchlogs WHERE sw_name = ? AND ts_local > ? AND ts_local < ? ORDER BY ts_local DESC", req.Name, timeFrom, timeTo)
 	if err != nil {
 		return &pb.SwitchLogsResponse{}, err
 	}
@@ -75,9 +114,11 @@ func (s LogService) GetSwitchLogs(ctx context.Context, req *pb.SwitchLogsRequest
 			l        = new(pb.SwitchLog)
 			tsLocal  string
 			tsRemote string
+			facility uint8
+			severity uint8
 		)
 
-		if err = rows.Scan(&tsLocal, &tsRemote, &l.Message); err != nil {
+		if err = rows.Scan(&tsLocal, &tsRemote, &l.Message, &facility, &severity); err != nil {
 			return &pb.SwitchLogsResponse{}, err
 		}
 
@@ -92,6 +133,14 @@ func (s LogService) GetSwitchLogs(ctx context.Context, req *pb.SwitchLogsRequest
 
 		l.TsLocal = tLocal.Format("02/01/2006 15:04:05")
 		l.TsRemote = tRemote.Format("02/01/2006 15:04:05")
+
+		var ok bool
+		if l.Facility, ok = facilityMap[facility]; !ok {
+			return &pb.SwitchLogsResponse{}, errors.New("No such facility code")
+		}
+		if l.Severity, ok = severityMap[severity]; !ok {
+			return &pb.SwitchLogsResponse{}, errors.New("No such severity code")
+		}
 
 		logs.Logs = append(logs.Logs, l)
 	}
