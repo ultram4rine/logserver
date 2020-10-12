@@ -21,11 +21,11 @@ export default function () {
   const SwitchHeaders = [
     {
       text: "Local timestamp",
-      value: "ts_local",
+      value: "tsLocal",
     },
     {
       text: "Remote timestamp",
-      value: "ts_remote",
+      value: "tsRemote",
     },
     { text: "Message", value: "message" },
     { text: "Facility", value: "facility" },
