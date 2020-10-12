@@ -103,7 +103,8 @@ func (s LogService) GetDHCPLogs(ctx context.Context, req *pb.DHCPLogsRequest) (*
 func (s LogService) GetSwitchLogs(ctx context.Context, req *pb.SwitchLogsRequest) (*pb.SwitchLogsResponse, error) {
 	timeFrom, timeTo := parseTime(req.From, req.To)
 
-	rows, err := s.DB.QueryxContext(ctx, "SELECT ts_local, ts_remote, log_msg, facility, severity, priority FROM switchlogs WHERE sw_name = ? AND ts_local > ? AND ts_local < ? ORDER BY ts_local DESC", req.Name, timeFrom, timeTo)
+	const query = "SELECT ts_local, ts_remote, log_msg, facility, severity FROM switchlogs WHERE sw_name = ? AND ts_local > ? AND ts_local < ? ORDER BY ts_local DESC"
+	rows, err := s.DB.QueryxContext(ctx, query, req.Name, timeFrom, timeTo)
 	if err != nil {
 		return &pb.SwitchLogsResponse{}, err
 	}
