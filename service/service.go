@@ -131,6 +131,14 @@ func (s LogService) GetNginxLogs(ctx context.Context, req *pb.NginxLogsRequest) 
 
 		l.Timestamp = t.Format("02/01/2006 15:04:05")
 
+		var ok bool
+		if l.Facility, ok = facilityMap[facility]; !ok {
+			return &pb.NginxLogsResponse{}, errors.New("No such facility code")
+		}
+		if l.Severity, ok = severityMap[severity]; !ok {
+			return &pb.NginxLogsResponse{}, errors.New("No such severity code")
+		}
+
 		logs.Logs = append(logs.Logs, l)
 	}
 	if rows.Err() != nil {
