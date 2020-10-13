@@ -13,15 +13,21 @@ service logService {
         body: "*"
       };
     }
-    rpc GetSwitchLogs (SwitchLogsRequest) returns (SwitchLogsResponse) {
-        option (google.api.http) = {
-        post: "/api/switches"
-        body: "*"
-      };
-    }
     rpc GetNginxLogs (NginxLogsRequest) returns (NginxLogsResponse) {
         option (google.api.http) = {
         post: "/api/nginx"
+        body: "*"
+      };
+    }
+    rpc GetNginxHosts (NginxHostsRequest) returns (NginxHostsResponse) {
+        option (google.api.http) = {
+        post: "/api/hosts"
+        body: "*"
+      };
+    }
+    rpc GetSwitchLogs (SwitchLogsRequest) returns (SwitchLogsResponse) {
+        option (google.api.http) = {
+        post: "/api/switches"
         body: "*"
       };
     }
@@ -49,6 +55,33 @@ message DHCPLogsResponse {
     repeated DHCPLog logs = 1;
 }
 
+message NginxLogsRequest {
+    string hostname = 1;
+    int64 from = 2;
+    int64 to = 3;
+}
+
+message NginxLog {
+    string timestamp = 1;
+    string message = 2;
+    string facility = 3;
+    string severity = 4;
+}
+
+message NginxLogsResponse {
+    repeated NginxLog logs = 1;
+}
+
+message NginxHostsRequest{}
+
+message NginxHost {
+    string name = 1;
+}
+
+message NginxHostsResponse {
+    repeated NginxHost hosts = 1;
+}
+
 message SwitchLogsRequest {
     string name = 1;
     int64 from = 2;
@@ -64,23 +97,6 @@ message SwitchLog {
 }
 
 message SwitchLogsResponse {
-    repeated SwitchLog logs = 1;
-}
-
-message NginxLogsRequest {
-    string hostname = 1;
-    int64 from = 2;
-    int64 to = 3;
-}
-
-message NginxLog {
-    string timestamp = 1;
-    string message = 2;
-    string facility = 3;
-    string severity = 4;
-}
-
-message NginxLogsResponse {
     repeated SwitchLog logs = 1;
 }
 

@@ -52,6 +52,8 @@ var severityMap = map[uint8]string{
 // Service interface.
 type Service interface {
 	GetDHCPLogs(ctx context.Context, req *pb.DHCPLogsRequest) (*pb.DHCPLogsResponse, error)
+	GetNginxLogs(ctx context.Context, req *pb.NginxLogsRequest) (*pb.NginxLogsResponse, error)
+	GetNginxHosts(ctx context.Context, req *pb.NginxHostsRequest) (*pb.NginxHostsResponse, error)
 	GetSwitchLogs(ctx context.Context, req *pb.SwitchLogsRequest) (*pb.SwitchLogsResponse, error)
 	GetSimilarSwitches(ctx context.Context, req *pb.SimilarSwitchesRequest) (*pb.SimilarSwitchesResponse, error)
 }
@@ -97,6 +99,69 @@ func (s LogService) GetDHCPLogs(ctx context.Context, req *pb.DHCPLogsRequest) (*
 	}
 
 	return logs, nil
+}
+
+// GetNginxLogs return logs from given nginx host and time interval.
+func (s LogService) GetNginxLogs(ctx context.Context, req *pb.NginxLogsRequest) (*pb.NginxLogsResponse, error) {
+	timeFrom, timeTo := parseTime(req.From, req.To)
+
+	const query = "SELECT timestamp, message, facility, severity FROM nginx WHERE host = ? AND timestamp > ? AND timestamp < ? ORDER BY timestamp DESC"
+	rows, err := s.DB.QueryxContext(ctx, query, req.Hostname, timeFrom, timeTo)
+	if err != nil {
+		return &pb.NginxLogsResponse{}, err
+	}
+
+	var logs = new(pb.NginxLogsResponse)
+	for rows.Next() {
+		var (
+			l        = new(pb.NginxLog)
+			ts       string
+			facility uint8
+			severity uint8
+		)
+
+		if err = rows.Scan(&ts, &l.Message, &facility, &severity); err != nil {
+			return &pb.NginxLogsResponse{}, err
+		}
+
+		t, err := time.Parse(time.RFC3339, ts)
+		if err != nil {
+			return &pb.NginxLogsResponse{}, err
+		}
+
+		l.Timestamp = t.Format("02/01/2006 15:04:05")
+
+		logs.Logs = append(logs.Logs, l)
+	}
+	if rows.Err() != nil {
+		return &pb.NginxLogsResponse{}, err
+	}
+
+	return logs, nil
+}
+
+// GetNginxHosts returns available for view logs nginx hosts.
+func (s LogService) GetNginxHosts(ctx context.Context, req *pb.NginxHostsRequest) (*pb.NginxHostsResponse, error) {
+	rows, err := s.DB.QueryxContext(ctx, "SELECT DISTINCT hostname FROM nginx")
+	if err != nil {
+		return &pb.NginxHostsResponse{}, err
+	}
+
+	var hosts = new(pb.NginxHostsResponse)
+	for rows.Next() {
+		var h = new(pb.NginxHost)
+
+		if err = rows.Scan(&h.Name); err != nil {
+			return &pb.NginxHostsResponse{}, err
+		}
+
+		hosts.Hosts = append(hosts.Hosts, h)
+	}
+	if rows.Err() != nil {
+		return &pb.NginxHostsResponse{}, err
+	}
+
+	return hosts, nil
 }
 
 // GetSwitchLogs returns logs from given switch and time interval.

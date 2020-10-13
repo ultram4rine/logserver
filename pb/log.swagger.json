@@ -43,6 +43,70 @@
         ]
       }
     },
+    "/api/hosts": {
+      "post": {
+        "operationId": "logService_GetNginxHosts",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbNginxHostsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbNginxHostsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "logService"
+        ]
+      }
+    },
+    "/api/nginx": {
+      "post": {
+        "operationId": "logService_GetNginxLogs",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbNginxLogsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbNginxLogsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "logService"
+        ]
+      }
+    },
     "/api/similar": {
       "post": {
         "operationId": "logService_GetSimilarSwitches",
@@ -146,6 +210,72 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/pbDHCPLog"
+          }
+        }
+      }
+    },
+    "pbNginxHost": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "pbNginxHostsRequest": {
+      "type": "object"
+    },
+    "pbNginxHostsResponse": {
+      "type": "object",
+      "properties": {
+        "hosts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/pbNginxHost"
+          }
+        }
+      }
+    },
+    "pbNginxLog": {
+      "type": "object",
+      "properties": {
+        "timestamp": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "facility": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "string"
+        }
+      }
+    },
+    "pbNginxLogsRequest": {
+      "type": "object",
+      "properties": {
+        "hostname": {
+          "type": "string"
+        },
+        "from": {
+          "type": "string",
+          "format": "int64"
+        },
+        "to": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "pbNginxLogsResponse": {
+      "type": "object",
+      "properties": {
+        "logs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/pbNginxLog"
           }
         }
       }
