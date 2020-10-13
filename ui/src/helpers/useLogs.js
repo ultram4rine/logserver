@@ -4,10 +4,12 @@ import { ref } from "@vue/composition-api";
 import config from "@/config/config";
 
 const DHCPLogsEndpoint = `${config.apiURL}/dhcp`;
+const nginxLogsEndpoint = `${config.apiURL}/nginx`;
 const switchLogsEndpoint = `${config.apiURL}/switches`;
 
 export default function () {
   const DHCPLogs = ref([]);
+  const NginxLogs = ref([]);
   const SwitchLogs = ref([]);
 
   const DHCPHeaders = [
@@ -17,6 +19,15 @@ export default function () {
       value: "timestamp",
     },
     { text: "Message", value: "message" },
+  ];
+  const NginxHeaders = [
+    {
+      text: "Timestamp",
+      value: "timestamp",
+    },
+    { text: "Message", value: "message" },
+    { text: "Facility", value: "facility" },
+    { text: "Severity", value: "severity" },
   ];
   const SwitchHeaders = [
     {
@@ -53,6 +64,20 @@ export default function () {
     }
   };
 
+  const getNginxLogs = async (hostname, from, to) => {
+    try {
+      const resp = await axios.post(nginxLogsEndpoint, {
+        hostname: hostname,
+        from: from,
+        to: to,
+      });
+      return resp.data.logs;
+    } catch (err) {
+      console.log(err);
+      return [];
+    }
+  };
+
   const getSwitchLogs = async (name, from, to) => {
     try {
       const resp = await axios.post(switchLogsEndpoint, {
@@ -69,12 +94,15 @@ export default function () {
 
   return {
     DHCPLogs,
+    NginxLogs,
     SwitchLogs,
 
     DHCPHeaders,
+    NginxHeaders,
     SwitchHeaders,
 
     getDHCPLogs,
+    getNginxLogs,
     getSwitchLogs,
   };
 }

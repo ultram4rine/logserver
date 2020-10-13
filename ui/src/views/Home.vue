@@ -25,13 +25,30 @@
           ></v-text-field>
 
           <v-autocomplete
+            v-else-if="selection === 'Nginx Logs'"
+            hide-details
+            single-line
+            label="Host name"
+            v-model="host"
+            :items="NginxHosts"
+            :search-input.sync="searchHosts"
+            :loading="isLoading"
+            item-text="name"
+            item-value="name"
+            color="primary"
+            hide-no-data
+            placeholder="Start typing to Search"
+            return-object
+          ></v-autocomplete>
+
+          <v-autocomplete
             v-else-if="selection === 'Switch Logs'"
             hide-details
             single-line
             label="Switch name"
             v-model="name"
             :items="similars"
-            :search-input.sync="search"
+            :search-input.sync="searchSwitches"
             :loading="isLoading"
             item-text="desc"
             item-value="name"
@@ -69,6 +86,12 @@
             >Show logs</v-btn
           >
           <v-btn
+            v-else-if="selection === 'Nginx Logs'"
+            color="primary"
+            v-on:click="insertNginxLogs"
+            >Show logs</v-btn
+          >
+          <v-btn
             v-else-if="selection === 'Switch Logs'"
             color="primary"
             v-on:click="insertSwitchLogs"
@@ -100,6 +123,13 @@
           :headers="DHCPHeaders"
           sort-by="timestamp"
           :items="DHCPLogs"
+        ></v-data-table>
+        <v-data-table
+          v-else-if="selection === 'Nginx Logs'"
+          fixed-header
+          :headers="NginxHeaders"
+          sort-by="timestamp"
+          :items="NginxLogs"
         ></v-data-table>
         <v-data-table
           v-else-if="selection === 'Switch Logs'"
@@ -270,6 +300,7 @@ import { mdiDotsVertical, mdiClose } from "@mdi/js";
 import { ref, computed, watch } from "@vue/composition-api";
 
 import useLogs from "@/helpers/useLogs";
+import useHosts from "@/helpers/useHosts";
 import useSwitches from "@/helpers/useSwitches";
 
 export default {
@@ -278,18 +309,23 @@ export default {
   setup() {
     const {
       DHCPLogs,
+      NginxLogs,
       SwitchLogs,
       DHCPHeaders,
+      NginxHeaders,
       SwitchHeaders,
       getDHCPLogs,
+      getNginxLogs,
       getSwitchLogs,
     } = useLogs();
+    const { NginxHosts, getNginxHosts } = useHosts();
     const { SimilarSwitches, getSimilarSwitches } = useSwitches();
 
     const selection = ref("DHCP Logs");
-    const items = ["DHCP Logs", "Switch Logs"];
+    const items = ["DHCP Logs", "Nginx Logs", "Switch Logs"];
 
     const mac = ref("");
+    const host = ref("");
     const name = ref("");
 
     const fromDate = ref("");
@@ -314,7 +350,8 @@ export default {
     const period = ref(false);
     const periodForm = ref(false);
 
-    const search = ref(null);
+    const searchHosts = ref(null);
+    const searchSwitches = ref(null);
     const isLoading = ref(false);
 
     const menuFromDate = ref(false);
@@ -327,6 +364,13 @@ export default {
 
       getDHCPLogs(mac.value, dates.unixFrom, dates.unixTo).then(
         (logs) => (DHCPLogs.value = logs)
+      );
+    };
+    const insertNginxLogs = () => {
+      let dates = transformDates();
+
+      getNginxLogs(host.value, dates.unixFrom, dates.unixTo).then(
+        (logs) => (NginxLogs.value = logs)
       );
     };
     const insertSwitchLogs = () => {
@@ -394,7 +438,22 @@ export default {
     });
 
     watch(
-      () => search.value,
+      () => searchHosts.value,
+      () => {
+        if (NginxHosts.value.length > 0) return;
+
+        if (isLoading.value) return;
+
+        isLoading.value = true;
+
+        getNginxHosts().then((hosts) => {
+          NginxHosts.value = hosts;
+          isLoading.value = false;
+        });
+      }
+    );
+    watch(
+      () => searchSwitches.value,
       () => {
         if (SimilarSwitches.value.length > 0) return;
 
@@ -411,15 +470,20 @@ export default {
 
     return {
       DHCPLogs,
+      NginxLogs,
+      NginxHosts,
       SwitchLogs,
       SimilarSwitches,
 
       DHCPHeaders,
+      NginxHeaders,
       SwitchHeaders,
 
+      getNginxHosts,
       getSimilarSwitches,
 
       mac,
+      host,
       name,
       fromDate,
       toDate,
@@ -433,7 +497,8 @@ export default {
       period,
       periodForm,
 
-      search,
+      searchHosts,
+      searchSwitches,
       isLoading,
 
       menuFromDate,
@@ -442,6 +507,7 @@ export default {
       menuToTime,
 
       insertDHCPLogs,
+      insertNginxLogs,
       insertSwitchLogs,
 
       similars,
