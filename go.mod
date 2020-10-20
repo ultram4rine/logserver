@@ -8,8 +8,8 @@ require (
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d // indirect
 	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
-	github.com/go-ldap/ldap/v3 v3.2.3
-	github.com/golang/protobuf v1.4.2
+	github.com/go-ldap/ldap/v3 v3.2.4
+	github.com/golang/protobuf v1.4.3
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/securecookie v1.1.1
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
@@ -24,10 +24,10 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.7.1
-	golang.org/x/crypto v0.0.0-20201012173705-84dcc777aaee // indirect
-	golang.org/x/net v0.0.0-20201010224723-4f7140c49acb // indirect
-	golang.org/x/sys v0.0.0-20201014080544-cc95f250f6bc // indirect
-	google.golang.org/genproto v0.0.0-20201014134559-03b6142f0dc9
+	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897 // indirect
+	golang.org/x/net v0.0.0-20201020065357-d65d470038a5 // indirect
+	golang.org/x/sys v0.0.0-20201018230417-eeed37f84f13 // indirect
+	google.golang.org/genproto v0.0.0-20201019141844-1ed22bb0c154
 	google.golang.org/grpc v1.33.0
 	google.golang.org/grpc/examples v0.0.0-20200917190803-0f7e218c2cf4 // indirect
 	google.golang.org/protobuf v1.25.0
