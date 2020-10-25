@@ -1,4 +1,4 @@
-package service
+package server
 
 import (
 	"context"
@@ -49,22 +49,16 @@ var severityMap = map[uint8]string{
 	7: "Debug",
 }
 
-// Service interface.
-type Service interface {
-	GetDHCPLogs(ctx context.Context, req *pb.DHCPLogsRequest) (*pb.DHCPLogsResponse, error)
-	GetNginxLogs(ctx context.Context, req *pb.NginxLogsRequest) (*pb.NginxLogsResponse, error)
-	GetNginxHosts(ctx context.Context, req *pb.NginxHostsRequest) (*pb.NginxHostsResponse, error)
-	GetSwitchLogs(ctx context.Context, req *pb.SwitchLogsRequest) (*pb.SwitchLogsResponse, error)
-	GetSimilarSwitches(ctx context.Context, req *pb.SimilarSwitchesRequest) (*pb.SimilarSwitchesResponse, error)
-}
-
-// LogService is a Service interface implementation.
-type LogService struct {
+// LogServer is a LogServiceServer interface implementation.
+type LogServer struct {
+	pb.UnimplementedLogServiceServer
 	DB *sqlx.DB
 }
 
+func (s LogServer) mustEmbedUnimplementedLogServiceServer() {}
+
 // GetDHCPLogs returns DHCP logs from given MAC address and time interval.
-func (s LogService) GetDHCPLogs(ctx context.Context, req *pb.DHCPLogsRequest) (*pb.DHCPLogsResponse, error) {
+func (s LogServer) GetDHCPLogs(ctx context.Context, req *pb.DHCPLogsRequest) (*pb.DHCPLogsResponse, error) {
 	timeFrom, timeTo := parseTime(req.From, req.To)
 
 	rows, err := s.DB.QueryxContext(ctx, "SELECT ts, message, ip FROM dhcp.events WHERE mac = MACStringToNum(?) AND ts > ? AND ts < ? ORDER BY ts DESC", req.MAC, timeFrom, timeTo)
@@ -102,7 +96,7 @@ func (s LogService) GetDHCPLogs(ctx context.Context, req *pb.DHCPLogsRequest) (*
 }
 
 // GetNginxLogs return logs from given nginx host and time interval.
-func (s LogService) GetNginxLogs(ctx context.Context, req *pb.NginxLogsRequest) (*pb.NginxLogsResponse, error) {
+func (s LogServer) GetNginxLogs(ctx context.Context, req *pb.NginxLogsRequest) (*pb.NginxLogsResponse, error) {
 	timeFrom, timeTo := parseTime(req.From, req.To)
 
 	const query = "SELECT timestamp, message, facility, severity FROM nginx WHERE host = ? AND timestamp > ? AND timestamp < ? ORDER BY timestamp DESC"
@@ -149,7 +143,7 @@ func (s LogService) GetNginxLogs(ctx context.Context, req *pb.NginxLogsRequest) 
 }
 
 // GetNginxHosts returns available for view logs nginx hosts.
-func (s LogService) GetNginxHosts(ctx context.Context, req *pb.NginxHostsRequest) (*pb.NginxHostsResponse, error) {
+func (s LogServer) GetNginxHosts(ctx context.Context, req *pb.NginxHostsRequest) (*pb.NginxHostsResponse, error) {
 	rows, err := s.DB.QueryxContext(ctx, "SELECT DISTINCT hostname FROM nginx")
 	if err != nil {
 		return &pb.NginxHostsResponse{}, err
@@ -173,7 +167,7 @@ func (s LogService) GetNginxHosts(ctx context.Context, req *pb.NginxHostsRequest
 }
 
 // GetSwitchLogs returns logs from given switch and time interval.
-func (s LogService) GetSwitchLogs(ctx context.Context, req *pb.SwitchLogsRequest) (*pb.SwitchLogsResponse, error) {
+func (s LogServer) GetSwitchLogs(ctx context.Context, req *pb.SwitchLogsRequest) (*pb.SwitchLogsResponse, error) {
 	timeFrom, timeTo := parseTime(req.From, req.To)
 
 	const query = "SELECT ts_local, ts_remote, log_msg, facility, severity FROM switchlogs WHERE sw_name = ? AND ts_local > ? AND ts_local < ? ORDER BY ts_local DESC"
@@ -226,7 +220,7 @@ func (s LogService) GetSwitchLogs(ctx context.Context, req *pb.SwitchLogsRequest
 }
 
 // GetSimilarSwitches returns available for view logs switches, which names are similar to given.
-func (s LogService) GetSimilarSwitches(ctx context.Context, req *pb.SimilarSwitchesRequest) (*pb.SimilarSwitchesResponse, error) {
+func (s LogServer) GetSimilarSwitches(ctx context.Context, req *pb.SimilarSwitchesRequest) (*pb.SimilarSwitchesResponse, error) {
 	rows, err := s.DB.QueryxContext(ctx, "SELECT DISTINCT sw_name, sw_ip FROM switchlogs WHERE sw_name LIKE ?", req.Name+"%")
 	if err != nil {
 		return &pb.SimilarSwitchesResponse{}, err

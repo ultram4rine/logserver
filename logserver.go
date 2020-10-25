@@ -19,7 +19,7 @@ import (
 	"git.sgu.ru/ultramarine/logserver/cmd"
 	"git.sgu.ru/ultramarine/logserver/conf"
 	"git.sgu.ru/ultramarine/logserver/pb"
-	"git.sgu.ru/ultramarine/logserver/service"
+	"git.sgu.ru/ultramarine/logserver/server"
 
 	_ "github.com/ClickHouse/clickhouse-go"
 	"github.com/gorilla/mux"
@@ -87,7 +87,7 @@ func main() {
 
 	var (
 		logger  = log.New()
-		svc     = service.LogService{DB: db}
+		srv     = server.LogServer{DB: db}
 		errChan = make(chan error, 1000)
 	)
 
@@ -118,7 +118,7 @@ func main() {
 				grpc_logrus.UnaryServerInterceptor(entry, opts...),
 			),
 		)
-		pb.RegisterLogServiceServer(gRPCServer, svc)
+		pb.RegisterLogServiceServer(gRPCServer, srv)
 
 		log.Infof("Started LogServer on %s port", conf.Config.GRPCPort)
 
