@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.12.1",
-    "@mdi/js": "^5.7.55",
+    "@mdi/js": "^5.8.55",
     "@vue/composition-api": "^1.0.0-beta.20",
     "axios": "^0.20.0",
     "core-js": "^3.6.5",
