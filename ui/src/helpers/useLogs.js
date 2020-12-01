@@ -46,6 +46,10 @@ export default function () {
   const getDHCPLogs = async (mac, from, to) => {
     mac = mac.toUpperCase();
 
+    if (mac.length === 12) {
+      mac = mac.replace(/(.{2})/g, "$1:").slice(0, -1);
+    }
+
     if (mac.length !== 17) {
       alert("Mac-address have incorrect length!");
       return;
