@@ -55,8 +55,6 @@ type LogServer struct {
 	DB *sqlx.DB
 }
 
-func (s LogServer) mustEmbedUnimplementedLogServiceServer() {}
-
 // GetDHCPLogs returns DHCP logs from given MAC address and time interval.
 func (s LogServer) GetDHCPLogs(ctx context.Context, req *pb.DHCPLogsRequest) (*pb.DHCPLogsResponse, error) {
 	timeFrom, timeTo := parseTime(req.From, req.To)
