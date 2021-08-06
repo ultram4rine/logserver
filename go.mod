@@ -28,7 +28,7 @@ require (
 	golang.org/x/net v0.0.0-20201024042810-be3efd7ff127 // indirect
 	golang.org/x/sys v0.0.0-20201024232916-9f70ab9862d5 // indirect
 	google.golang.org/genproto v0.0.0-20201022181438-0ff5f38871d5
-	google.golang.org/grpc v1.34.0
+	google.golang.org/grpc v1.39.1
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.0.1
 	google.golang.org/grpc/examples v0.0.0-20201023201832-a80e65018272 // indirect
 	google.golang.org/protobuf v1.25.0
